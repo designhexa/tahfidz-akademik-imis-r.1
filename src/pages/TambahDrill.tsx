@@ -125,6 +125,9 @@ const TambahDrill = () => {
 
   return (
     <div className="space-y-4">
+      <div>
+        <h1 className="text-2xl font-bold">Tambah Drill Hafalan</h1>
+      </div>
 
       {/* Santri */}
       <div className="space-y-2">

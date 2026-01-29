@@ -98,7 +98,6 @@ const TambahSetoran = () => {
     <div className="max-w-2xl mx-auto space-y-6 p-4">
       <div>
         <h1 className="text-2xl font-bold">Tambah Setoran Hafalan</h1>
-        <p className="text-muted-foreground">Form pencatatan setoran santri</p>
       </div>
 
       {/* Informasi Santri */}
