@@ -7,12 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { BookOpen, CalendarIcon, Plus } from "lucide-react";
+import { CalendarIcon, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { JuzSelector } from "@/components/JuzSelector";
 import { getSurahsByJuz, Surah } from "@/lib/quran-data";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 
 /* ================= MOCK DATA ================= */
 
@@ -95,169 +94,164 @@ const TambahSetoran = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 p-4">
-      <div>
-        <h1 className="text-2xl font-bold">Tambah Setoran Hafalan</h1>
-      </div>
+  <div className="max-w-2xl mx-auto space-y-6 p-4">
+    <h1 className="text-2xl font-bold">Tambah Setoran Hafalan</h1>
 
-      {/* Informasi Santri */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Informasi Santri</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Santri *</Label>
-              <Select value={selectedSantri} onValueChange={setSelectedSantri}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih santri" />
-                </SelectTrigger>
-                <SelectContent>
-                  {mockSantri.map(s => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.nama} - {s.nis}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+    {/* ================= Informasi Santri ================= */}
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm">Informasi Santri</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
 
-            <div className="space-y-2">
-              <Label>Tanggal *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn("w-full justify-start", !tanggalSetoran && "text-muted-foreground")}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {tanggalSetoran ? format(tanggalSetoran, "dd/MM/yyyy") : "Pilih tanggal"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={tanggalSetoran}
-                    onSelect={setTanggalSetoran}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
+        {/* Santri */}
+        <div className="space-y-2">
+          <Label>Pilih Santri *</Label>
+          <Select value={selectedSantri} onValueChange={setSelectedSantri}>
+            <SelectTrigger>
+              <SelectValue placeholder="Pilih santri" />
+            </SelectTrigger>
+            <SelectContent>
+              {mockSantri.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.nama}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-          {selectedSantriData && (
-            <div className="p-3 bg-primary/10 rounded border">
-              Halaqoh: <b>{selectedSantriData.halaqoh}</b>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Detail Hafalan */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Detail Hafalan</CardTitle>
-          <CardDescription>Pilih juz, surah dan ayat</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <JuzSelector value={juz} onValueChange={setJuz} required />
-
-          <div className="space-y-2">
-            <Label>Surah *</Label>
-            <Select value={surah} onValueChange={setSurah} disabled={!juz}>
-              <SelectTrigger>
-                <SelectValue placeholder={juz ? "Pilih surah" : "Pilih juz dulu"} />
-              </SelectTrigger>
-              <SelectContent>
-                {surahByJuz.map(s => (
-                  <SelectItem key={s.number} value={String(s.number)}>
-                    {s.number}. {s.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {selectedSurah && (
-            <div className="text-sm bg-primary/10 p-2 rounded">
-              {selectedSurah.name} – {selectedSurah.numberOfAyahs} ayat
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <Label>Ayat dari *</Label>
-              <Input
-                type="number"
-                value={ayatDari}
-                min={1}
-                max={selectedSurah?.numberOfAyahs}
-                onChange={(e) => setAyatDari(e.target.value)}
-                disabled={!selectedSurah}
+        {/* Tanggal */}
+        <div className="space-y-2">
+          <Label>Tanggal Setoran *</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full justify-start">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {tanggalSetoran ? format(tanggalSetoran, "dd/MM/yyyy") : "Pilih tanggal"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={tanggalSetoran}
+                onSelect={setTanggalSetoran}
+                initialFocus
               />
-            </div>
+            </PopoverContent>
+          </Popover>
+        </div>
 
-            <div className="space-y-1">
-              <Label>Ayat sampai *</Label>
-              <Input
-                type="number"
-                value={ayatSampai}
-                min={Number(ayatDari)}
-                max={selectedSurah?.numberOfAyahs}
-                onChange={(e) => setAyatSampai(e.target.value)}
-                disabled={!selectedSurah}
-              />
-            </div>
+        {selectedSantriData && (
+          <div className="p-3 bg-primary/10 rounded border text-sm">
+            Halaqoh: <b>{selectedSantriData.halaqoh}</b>
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </CardContent>
+    </Card>
 
-      {/* Penilaian */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Penilaian</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Jumlah Kesalahan *</Label>
+    {/* ================= Detail Hafalan ================= */}
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm">Detail Hafalan</CardTitle>
+        <CardDescription>Pilih juz, surah dan ayat</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <JuzSelector value={juz} onValueChange={setJuz} required />
+
+        <div className="space-y-2">
+          <Label>Surah *</Label>
+          <Select value={surah} onValueChange={setSurah} disabled={!juz}>
+            <SelectTrigger>
+              <SelectValue placeholder={juz ? "Pilih surah" : "Pilih juz dulu"} />
+            </SelectTrigger>
+            <SelectContent>
+              {surahByJuz.map((s) => (
+                <SelectItem key={s.number} value={String(s.number)}>
+                  {s.number}. {s.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {selectedSurah && (
+          <div className="text-sm bg-primary/10 p-2 rounded">
+            {selectedSurah.name} – {selectedSurah.numberOfAyahs} ayat
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <Label>Ayat dari *</Label>
             <Input
               type="number"
-              value={jumlahKesalahan}
-              min={0}
-              onChange={(e) => setJumlahKesalahan(e.target.value)}
+              value={ayatDari}
+              min={1}
+              max={selectedSurah?.numberOfAyahs}
+              onChange={(e) => setAyatDari(e.target.value)}
+              disabled={!selectedSurah}
             />
           </div>
 
-          <div className="flex justify-between p-3 bg-muted rounded">
-            <span>Nilai</span>
-            <b>{nilaiKelancaran}</b>
-          </div>
-
-          {nilaiKelancaran < BATAS_LANCAR_SETORAN && (
-            <p className="text-sm text-yellow-600">
-              Kurang {selisihNilai} poin dari batas lancar
-            </p>
-          )}
-
-          <div className="space-y-2">
-            <Label>Catatan Tajwid</Label>
-            <Textarea
-              value={catatanTajwid}
-              onChange={(e) => setCatatanTajwid(e.target.value)}
-              placeholder="Catatan perbaikan bacaan..."
+          <div className="space-y-1">
+            <Label>Ayat sampai *</Label>
+            <Input
+              type="number"
+              value={ayatSampai}
+              min={Number(ayatDari)}
+              max={selectedSurah?.numberOfAyahs}
+              onChange={(e) => setAyatSampai(e.target.value)}
+              disabled={!selectedSurah}
             />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardContent>
+    </Card>
 
-      <Button onClick={handleSubmit} className="w-full">
-        <Plus className="w-4 h-4 mr-2" />
-        Simpan Setoran
-      </Button>
-    </div>
-  );
-};
+    {/* ================= Penilaian ================= */}
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm">Penilaian</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label>Jumlah Kesalahan *</Label>
+          <Input
+            type="number"
+            value={jumlahKesalahan}
+            min={0}
+            onChange={(e) => setJumlahKesalahan(e.target.value)}
+          />
+        </div>
+
+        <div className="flex justify-between p-3 bg-muted rounded">
+          <span>Nilai</span>
+          <b>{nilaiKelancaran}</b>
+        </div>
+
+        {nilaiKelancaran < BATAS_LANCAR_SETORAN && (
+          <p className="text-sm text-yellow-600">
+            Kurang {selisihNilai} poin dari batas lancar
+          </p>
+        )}
+
+        <div className="space-y-2">
+          <Label>Catatan Tajwid</Label>
+          <Textarea
+            value={catatanTajwid}
+            onChange={(e) => setCatatanTajwid(e.target.value)}
+            placeholder="Catatan perbaikan bacaan..."
+          />
+        </div>
+      </CardContent>
+    </Card>
+
+    <Button onClick={handleSubmit} className="w-full">
+      <Plus className="w-4 h-4 mr-2" />
+      Simpan Setoran
+    </Button>
+  </div>
+);
 
 export default TambahSetoran;
