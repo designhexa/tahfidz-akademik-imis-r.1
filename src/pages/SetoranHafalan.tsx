@@ -23,15 +23,16 @@ import { getSurahsByJuz, Surah } from "@/lib/quran-data";
 import { format, subDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import TambahSetoran from "@/pages/TambahSetoran";
-import TambahDrill from "@/pages/TambahDrill";
+import { DrillForm } from "@/components/setoran/DrillForm";
 
 // Jenis setoran
 type FormTab = "setoran_baru" | "murojaah" | "tilawah" | "tilawah_rumah" | "drill";
+type JenisSetoran = "setoran_baru" | "murojaah" | "tilawah" | "tilawah_rumah" | "drill";
 type SetoranRecord = {
   tanggal: Date;
   santriId: string;
   jenis: JenisSetoran;
-  status: "selesai" | "pending";
+  status: "selesai" | "tidak_hadir";
 };
 
 const jenisSetoranOptions = [
@@ -257,7 +258,15 @@ const SetoranHafalan = () => {
                   </TabsContent>
 
                   <TabsContent value="drill" className="mt-4">
-                    <TambahDrill />
+                    <DrillForm 
+                      santriList={mockSantri}
+                      setoranRecords={mockSetoranRecords}
+                      onSubmit={(data) => {
+                        console.log("Drill data:", data);
+                        toast.success("Drill berhasil disimpan!");
+                        setIsDialogOpen(false);
+                      }}
+                    />
                   </TabsContent>
 
                 </Tabs>
