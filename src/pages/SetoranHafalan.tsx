@@ -31,6 +31,7 @@ import {
 import { toast } from "sonner";
 import { JuzSelector } from "@/components/JuzSelector";
 import { SetoranCalendar } from "@/components/setoran/SetoranCalendar";
+import { DrillForm } from "@/components/setoran/DrillForm";
 import { getSurahsByJuz, Surah } from "@/lib/quran-data";
 import { format, subDays } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -211,9 +212,13 @@ const SetoranHafalan = () => {
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
+            <DrillForm 
+              santriList={mockSantri} 
+              setoranRecords={mockSetoranRecords}
+            />
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-green-500 to-lime-500">
+                <Button>
                   <Plus className="w-4 h-4 mr-2" />
                   Tambah Setoran
                 </Button>
