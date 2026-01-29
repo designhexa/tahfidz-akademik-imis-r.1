@@ -38,9 +38,7 @@ import { useState } from "react";
 
 const tahfidzItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Absensi Setoran", url: "/absensi", icon: UserCheck },
   { title: "Setoran Hafalan", url: "/setoran", icon: BookOpen },
-  { title: "Drill Hafalan", url: "/drill", icon: ClipboardCheck },
   { title: "Laporan Hafalan", url: "/laporan", icon: FileText },
   { title: "Ujian Tasmi'", url: "/ujian-tasmi", icon: Award },
   { title: "Ujian Tahfidz", url: "/ujian-tahfidz", icon: GraduationCap },

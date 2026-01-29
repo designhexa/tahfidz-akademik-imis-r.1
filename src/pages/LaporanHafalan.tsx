@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, FileText, TrendingUp, BookOpen, Calendar, BarChart3, Target } from "lucide-react";
+import { Download, FileText, TrendingUp, BookOpen, Calendar, BarChart3, Target, Users, School } from "lucide-react";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
+import { LaporanCharts, CapaianKelasChart, CapaianHalaqohChart, CapaianSiswaChart } from "@/components/laporan/LaporanCharts";
 
 // Mock data
 const mockLaporanHarian = [
@@ -40,6 +41,30 @@ const mockDrillHafalan = [
   { santri: "Aisyah Nur", halaqoh: "Al-Furqon", kelas: "Paket B Kelas 8", drill1: "Lulus", drill2: "Proses", drill12Juz: "-", drill1Juz: "-", tasmi: "-", nilaiTerakhir: 90 },
   { santri: "Ahmad Rasyid", halaqoh: "Al-Furqon", kelas: "Paket A Kelas 6", drill1: "Lulus", drill2: "Lulus", drill12Juz: "Lulus", drill1Juz: "Lulus", tasmi: "Lulus", nilaiTerakhir: 95 },
   { santri: "Umar Faruq", halaqoh: "Al-Hidayah", kelas: "KBTK B", drill1: "Proses", drill2: "-", drill12Juz: "-", drill1Juz: "-", tasmi: "-", nilaiTerakhir: 85 },
+];
+
+// Chart data
+const mockCapaianKelas = [
+  { kelas: "KBTK A", rataRata: 92, totalSetoran: 156 },
+  { kelas: "KBTK B", rataRata: 88, totalSetoran: 142 },
+  { kelas: "Paket A Kelas 6", rataRata: 94, totalSetoran: 178 },
+  { kelas: "Paket B Kelas 8", rataRata: 90, totalSetoran: 165 },
+  { kelas: "Paket C Kelas 10", rataRata: 86, totalSetoran: 134 },
+];
+
+const mockCapaianHalaqoh = [
+  { halaqoh: "Al-Azhary", rataRata: 93, totalSetoran: 234 },
+  { halaqoh: "Al-Furqon", rataRata: 91, totalSetoran: 198 },
+  { halaqoh: "Al-Hidayah", rataRata: 89, totalSetoran: 187 },
+  { halaqoh: "An-Nur", rataRata: 87, totalSetoran: 156 },
+];
+
+const mockCapaianSiswa = [
+  { nama: "Ahmad Rasyid", juzSelesai: 15, totalJuz: 30, persentase: 50 },
+  { nama: "Muhammad Faiz", juzSelesai: 12, totalJuz: 30, persentase: 40 },
+  { nama: "Fatimah Zahra", juzSelesai: 10, totalJuz: 30, persentase: 33 },
+  { nama: "Aisyah Nur", juzSelesai: 8, totalJuz: 30, persentase: 27 },
+  { nama: "Umar Faruq", juzSelesai: 6, totalJuz: 30, persentase: 20 },
 ];
 
 const mockSantri = [
@@ -119,8 +144,8 @@ const LaporanHafalan = () => {
           <Card>
             <CardContent className="pt-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-lime/10 flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-lime" />
+                <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-secondary" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">1,950</p>
@@ -146,7 +171,7 @@ const LaporanHafalan = () => {
             <CardContent className="pt-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-blue-500" />
+                  <Users className="w-5 h-5 text-blue-500" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">48</p>
@@ -233,6 +258,19 @@ const LaporanHafalan = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Charts Section */}
+        <div className="space-y-6">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <BarChart3 className="w-5 h-5 text-primary" />
+            Visualisasi Capaian
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <CapaianKelasChart data={mockCapaianKelas} />
+            <CapaianHalaqohChart data={mockCapaianHalaqoh} />
+          </div>
+          <CapaianSiswaChart data={mockCapaianSiswa} />
+        </div>
 
         {/* Tabs Content */}
         <Tabs defaultValue="harian" className="space-y-4">
@@ -389,7 +427,7 @@ const LaporanHafalan = () => {
                         <TableHead className="text-center">½ Juz</TableHead>
                         <TableHead className="text-center">1 Juz</TableHead>
                         <TableHead className="text-center">Tasmi'</TableHead>
-                        <TableHead className="text-center">Nilai Terakhir</TableHead>
+                        <TableHead className="text-center">Nilai</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
