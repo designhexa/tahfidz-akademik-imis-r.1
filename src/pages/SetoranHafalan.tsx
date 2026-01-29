@@ -19,7 +19,6 @@ import {
   Search
 } from "lucide-react";
 import { toast } from "sonner";
-import { DrillForm } from "@/components/setoran/DrillForm";
 import { getSurahsByJuz, Surah } from "@/lib/quran-data";
 import { format, subDays } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -208,10 +207,6 @@ const SetoranHafalan = () => {
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
-            <DrillForm 
-              santriList={mockSantri} 
-              setoranRecords={mockSetoranRecords}
-            />
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
