@@ -33,6 +33,7 @@ const generatePageBasedDrills = (juz: number): DrillDefinition[] => {
     { drillNumber: 4, name: 'Drill 4', type: 'page', pageStart: 16, pageEnd: 20 },
     { drillNumber: 5, name: 'Drill 5', type: 'page', pageStart: 1, pageEnd: 10 },
     { drillNumber: 6, name: 'Drill 6', type: 'page', pageStart: 11, pageEnd: 20 },
+    { drillNumber: 7, name: 'Drill 7', type: 'page', pageStart: 1, pageEnd: 20 },
   ];
 };
 
@@ -89,6 +90,19 @@ const juz26Drills: DrillDefinition[] = [
     name: 'Drill 6',
     type: 'surah',
     surahRanges: [
+      { surahName: 'Al-Hujurat', surahNumber: 49, fullSurah: true },
+      { surahName: 'Qaf', surahNumber: 50, fullSurah: true },
+      { surahName: 'Adh-Dhariyat', surahNumber: 51, ayatStart: 1, ayatEnd: 30 }
+    ]
+  },
+  {
+    drillNumber: 7,
+    name: 'Drill 7',
+    type: 'surah',
+    surahRanges: [
+      { surahName: 'Al-Ahqaf', surahNumber: 46, fullSurah: true },
+      { surahName: 'Muhammad', surahNumber: 47, fullSurah: true },
+      { surahName: 'Al-Fath', surahNumber: 48, fullSurah: true },
       { surahName: 'Al-Hujurat', surahNumber: 49, fullSurah: true },
       { surahName: 'Qaf', surahNumber: 50, fullSurah: true },
       { surahName: 'Adh-Dhariyat', surahNumber: 51, ayatStart: 1, ayatEnd: 30 }
@@ -154,6 +168,20 @@ const juz27Drills: DrillDefinition[] = [
       { surahName: "Al-Waqi'ah", surahNumber: 56, fullSurah: true },
       { surahName: 'Al-Hadid', surahNumber: 57, fullSurah: true }
     ]
+  },
+  {
+    drillNumber: 7,
+    name: 'Drill 7',
+    type: 'surah',
+    surahRanges: [
+      { surahName: 'Adh-Dhariyat', surahNumber: 51, ayatStart: 31, ayatEnd: 60 },
+      { surahName: 'At-Tur', surahNumber: 52, fullSurah: true },
+      { surahName: 'An-Najm', surahNumber: 53, fullSurah: true },
+      { surahName: 'Al-Qamar', surahNumber: 54, fullSurah: true },
+      { surahName: 'Ar-Rahman', surahNumber: 55, fullSurah: true },
+      { surahName: "Al-Waqi'ah", surahNumber: 56, fullSurah: true },
+      { surahName: 'Al-Hadid', surahNumber: 57, fullSurah: true }
+    ]
   }
 ];
 
@@ -213,6 +241,22 @@ const juz28Drills: DrillDefinition[] = [
     name: 'Drill 6',
     type: 'surah',
     surahRanges: [
+      { surahName: 'As-Saff', surahNumber: 61, fullSurah: true },
+      { surahName: 'Al-Jumuah', surahNumber: 62, fullSurah: true },
+      { surahName: 'Al-Munafiqun', surahNumber: 63, fullSurah: true },
+      { surahName: 'At-Taghabun', surahNumber: 64, fullSurah: true },
+      { surahName: 'At-Talaq', surahNumber: 65, fullSurah: true },
+      { surahName: 'At-Tahrim', surahNumber: 66, fullSurah: true }
+    ]
+  },
+  {
+    drillNumber: 7,
+    name: 'Drill 7',
+    type: 'surah',
+    surahRanges: [
+      { surahName: 'Al-Mujadilah', surahNumber: 58, fullSurah: true },
+      { surahName: 'Al-Hashr', surahNumber: 59, fullSurah: true },
+      { surahName: 'Al-Mumtahanah', surahNumber: 60, fullSurah: true },
       { surahName: 'As-Saff', surahNumber: 61, fullSurah: true },
       { surahName: 'Al-Jumuah', surahNumber: 62, fullSurah: true },
       { surahName: 'Al-Munafiqun', surahNumber: 63, fullSurah: true },
@@ -295,7 +339,25 @@ const juz29Drills: DrillDefinition[] = [
       { surahName: 'Al-Insan', surahNumber: 76, fullSurah: true },
       { surahName: 'Al-Mursalat', surahNumber: 77, fullSurah: true }
     ]
-  }
+  },
+  {
+    drillNumber: 8,
+    name: 'Drill 8',
+    type: 'surah',
+    surahRanges: [
+      { surahName: 'Al-Mulk', surahNumber: 67, fullSurah: true },
+      { surahName: 'Al-Qalam', surahNumber: 68, fullSurah: true },
+      { surahName: 'Al-Haqqah', surahNumber: 69, fullSurah: true },
+      { surahName: "Al-Ma'arij", surahNumber: 70, fullSurah: true },
+      { surahName: 'Nuh', surahNumber: 71, fullSurah: true },
+      { surahName: 'Al-Jinn', surahNumber: 72, fullSurah: true },
+      { surahName: 'Al-Muzzammil', surahNumber: 73, fullSurah: true },
+      { surahName: 'Al-Muddaththir', surahNumber: 74, fullSurah: true },
+      { surahName: 'Al-Qiyamah', surahNumber: 75, fullSurah: true },
+      { surahName: 'Al-Insan', surahNumber: 76, fullSurah: true },
+      { surahName: 'Al-Mursalat', surahNumber: 77, fullSurah: true }
+    ]
+  },
 ];
 
 // Juz 30 Drills (includes Drill 7)
@@ -422,7 +484,51 @@ const juz30Drills: DrillDefinition[] = [
       { surahName: 'Al-Falaq', surahNumber: 113, fullSurah: true },
       { surahName: 'An-Nas', surahNumber: 114, fullSurah: true }
     ]
-  }
+  },
+  {
+    drillNumber: 8,
+    name: 'Drill 8',
+    type: 'surah',
+    surahRanges: [
+      { surahName: 'An-Naba', surahNumber: 78, fullSurah: true },
+      { surahName: 'An-Naziat', surahNumber: 79, fullSurah: true },
+      { surahName: 'Abasa', surahNumber: 80, fullSurah: true },
+      { surahName: 'At-Takwir', surahNumber: 81, fullSurah: true },
+      { surahName: 'Al-Infitar', surahNumber: 82, fullSurah: true },
+      { surahName: 'Al-Mutaffifin', surahNumber: 83, fullSurah: true },
+      { surahName: 'Al-Inshiqaq', surahNumber: 84, fullSurah: true },
+      { surahName: 'Al-Buruj', surahNumber: 85, fullSurah: true },
+      { surahName: 'At-Tariq', surahNumber: 86, fullSurah: true },
+      { surahName: 'Al-Ala', surahNumber: 87, fullSurah: true },
+      { surahName: 'Al-Ghashiyah', surahNumber: 88, fullSurah: true },
+      { surahName: 'Al-Fajr', surahNumber: 89, fullSurah: true },
+      { surahName: 'Al-Balad', surahNumber: 90, fullSurah: true },
+      { surahName: 'Ash-Shams', surahNumber: 91, fullSurah: true },
+      { surahName: 'Al-Lail', surahNumber: 92, fullSurah: true },
+      { surahName: 'Ad-Duha', surahNumber: 93, fullSurah: true },
+      { surahName: 'Ash-Sharh', surahNumber: 94, fullSurah: true },
+      { surahName: 'At-Tin', surahNumber: 95, fullSurah: true },
+      { surahName: 'Al-Alaq', surahNumber: 96, fullSurah: true },
+      { surahName: 'Al-Qadr', surahNumber: 97, fullSurah: true },
+      { surahName: 'Al-Bayyinah', surahNumber: 98, fullSurah: true },
+      { surahName: 'Az-Zalzalah', surahNumber: 99, fullSurah: true },
+      { surahName: 'Al-Adiyat', surahNumber: 100, fullSurah: true },
+      { surahName: 'Al-Qariah', surahNumber: 101, fullSurah: true },
+      { surahName: 'At-Takathur', surahNumber: 102, fullSurah: true },
+      { surahName: 'Al-Asr', surahNumber: 103, fullSurah: true },
+      { surahName: 'Al-Humazah', surahNumber: 104, fullSurah: true },
+      { surahName: 'Al-Fil', surahNumber: 105, fullSurah: true },
+      { surahName: 'Quraish', surahNumber: 106, fullSurah: true },
+      { surahName: 'Al-Maun', surahNumber: 107, fullSurah: true },
+      { surahName: 'Al-Kauthar', surahNumber: 108, fullSurah: true },
+      { surahName: 'Al-Kafirun', surahNumber: 109, fullSurah: true },
+      { surahName: 'An-Nasr', surahNumber: 110, fullSurah: true },
+      { surahName: 'Al-Masad', surahNumber: 111, fullSurah: true },
+      { surahName: 'Al-Ikhlas', surahNumber: 112, fullSurah: true },
+      { surahName: 'Al-Falaq', surahNumber: 113, fullSurah: true },
+      { surahName: 'An-Nas', surahNumber: 114, fullSurah: true }
+    ]
+  },
 ];
 
 // Build all juz drill configs
