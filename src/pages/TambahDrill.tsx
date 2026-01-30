@@ -28,7 +28,9 @@ import { JuzSelector } from "@/components/JuzSelector";
 
 import {
   getDrillsForJuz,
-  DrillDefinition,
+  isPageBasedDrill,
+  formatDrillDescription, // ✅ PAKAI INI
+  DrillDefinition
 } from "@/lib/drill-data";
 
 /* ================= CONST ================= */
@@ -100,25 +102,6 @@ const TambahDrill: FC<any> = ({
   }, [selectedDrill]);
 
   /* ===== HELPERS ===== */
-  const formatDrillDescription = (drill: DrillDefinition): string => {
-    // PAGE BASED
-    if (drill.type === "page") {
-      return `Hal ${drill.pageStart}–${drill.pageEnd}`;
-    }
-
-    // SURAH BASED
-    if (drill.type === "surah") {
-      return drill.surahRanges
-        .map(s => {
-          if (s.fullSurah) return s.surahName;
-          return `${s.surahName} ${s.ayatStart}–${s.ayatEnd}`;
-        })
-        .join(", ");
-    }
-
-    return "-";
-  };
-
   const addPage = () =>
     setPages(p => [...p, { id: crypto.randomUUID(), page: 1 }]);
 
@@ -216,8 +199,7 @@ const TambahDrill: FC<any> = ({
                   key={drill.drillNumber}
                   value={String(drill.drillNumber)}
                 >
-                  Level {drill.drillNumber} —{" "}
-                  {formatDrillDescription(drill)}
+                  Level {drill.drillNumber} — {formatDrillDescription(drill)}
                 </SelectItem>
               ))}
             </SelectContent>
