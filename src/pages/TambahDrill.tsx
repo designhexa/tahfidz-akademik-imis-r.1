@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, Lock, Unlock, Plus, X } from "lucide-react";
+import { CalendarIcon, Plus, X } from "lucide-react";
 import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -20,7 +20,6 @@ import {
   getDrillsForJuz,
   isPageBasedDrill,
   formatDrillDescription,
-  DrillDefinition,
 } from "@/lib/drill-data";
 
 /* ================= CONST ================= */
