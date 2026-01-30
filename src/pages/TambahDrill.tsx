@@ -54,17 +54,19 @@ const TambahDrill: FC<any> = ({
   const [santriId, setSantriId] = useState("");
   const [tanggal, setTanggal] = useState<Date>();
   const [juz, setJuz] = useState("");
+  const [drillsForJuz, setDrillsForJuz] = useState<DrillDefinition[]>([]);
   const [drillLevel, setDrillLevel] = useState("");
 
   /* ========== DRILL STATE ========== */
-  const drills = useMemo(
-    () => (juz ? getDrillsForJuz(Number(juz)) : []),
-    [juz]
-  );
+  const drills = useMemo(() => {
+    if (!juz) return [];
+    return getDrillsForJuz(Number(juz));
+  }, [juz]);
 
-  const selectedDrill: DrillDefinition | undefined = drills.find(
-    d => String(d.drillNumber) === drillLevel
-  );
+  const selectedDrill = useMemo(() => {
+    if (!drillLevel) return undefined;
+    return drills.find(d => d.drillNumber === Number(drillLevel));
+  }, [drills, drillLevel]);
 
   const pageBased = juz ? isPageBasedDrill(Number(juz)) : false;
 
@@ -166,17 +168,22 @@ const TambahDrill: FC<any> = ({
         {/* Level Drill */}
         <div>
           <Label>Level Drill</Label>
-          <Select value={drillLevel} onValueChange={setDrillLevel}>
+          <Select
+            value={drillLevel}
+            onValueChange={setDrillLevel}
+            disabled={!juz}
+          >
             <SelectTrigger>
-              <SelectValue placeholder="Pilih drill" />
+              <SelectValue placeholder="Pilih level drill" />
             </SelectTrigger>
+
             <SelectContent>
-              {drills.map(d => (
-                <SelectItem key={d.drillNumber} value={String(d.drillNumber)}>
-                  <span className="flex gap-2 items-center">
-                    <Unlock className="w-3 h-3 text-green-600" />
-                    {d.name} — {formatDrillDescription(d)}
-                  </span>
+              {drillsForJuz.map((drill) => (
+                <SelectItem
+                  key={drill.drillNumber}
+                  value={String(drill.drillNumber)}
+                >
+                  Drill {drill.drillNumber} — {formatDrillDescription(drill)}
                 </SelectItem>
               ))}
             </SelectContent>
