@@ -5,21 +5,31 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, Plus, X } from "lucide-react";
 import { format } from "date-fns";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { JuzSelector } from "@/components/JuzSelector";
 
 import {
   getDrillsForJuz,
   isPageBasedDrill,
-  formatDrillDescription,
+  DrillDefinition,
 } from "@/lib/drill-data";
 
 /* ================= CONST ================= */
@@ -48,23 +58,19 @@ const TambahDrill: FC<any> = ({
   filteredSantriForForm,
   CalendarComponent,
 }) => {
-  /* ========== BASIC STATE ========== */
+  /* ========== BASIC FORM ========== */
   const [halaqohFilter, setHalaqohFilter] = useState("");
   const [santriId, setSantriId] = useState("");
   const [tanggal, setTanggal] = useState<Date>();
   const [juz, setJuz] = useState("");
-  const [drillLevel, setDrillLevel] = useState("");
 
-  /* ========== DRILL STATE ========== */
-  const drills = useMemo(() => {
+  /* ========== DRILL ========== */
+  const [selectedDrill, setSelectedDrill] = useState("");
+
+  const drills = useMemo<DrillDefinition[]>(() => {
     if (!juz) return [];
     return getDrillsForJuz(Number(juz));
   }, [juz]);
-
-  const selectedDrill = useMemo(() => {
-    if (!drillLevel) return undefined;
-    return drills.find(d => d.drillNumber === Number(drillLevel));
-  }, [drills, drillLevel]);
 
   const pageBased = juz ? isPageBasedDrill(Number(juz)) : false;
 
@@ -76,7 +82,7 @@ const TambahDrill: FC<any> = ({
   const [jumlahKesalahan, setJumlahKesalahan] = useState(0);
   const nilaiKelancaran = Math.max(
     0,
-    100 - jumlahKesalahan * 5
+    100 - jumlahKesalahan * BATAS_KESALAHAN
   );
   const [catatan, setCatatan] = useState("");
 
@@ -84,9 +90,9 @@ const TambahDrill: FC<any> = ({
   useEffect(() => {
     setManualPages([]);
     setManualSurahs([]);
-  }, [drillLevel]);
+  }, [selectedDrill]);
 
-  /* ========== HANDLERS ========== */
+  /* ========== HELPERS ========== */
 
   const addPage = () =>
     setManualPages(p => [...p, { id: crypto.randomUUID(), page: 1 }]);
@@ -97,6 +103,18 @@ const TambahDrill: FC<any> = ({
       { id: crypto.randomUUID(), surahName: "" },
     ]);
 
+  const formatDrillDescription = (drill: DrillDefinition) => {
+    if ("fullSurah" in drill) return "1 Surah penuh";
+
+    if ("pageCount" in drill)
+      return `${drill.pageCount} halaman`;
+
+    if ("startPage" in drill && "endPage" in drill)
+      return `Hal ${drill.startPage}–${drill.endPage}`;
+
+    return "Custom";
+  };
+  
   /* ================= RENDER ================= */
 
   return (
@@ -106,7 +124,6 @@ const TambahDrill: FC<any> = ({
       </DialogHeader>
 
       <div className="space-y-4">
-
         {/* Halaqoh */}
         <div>
           <Label>Halaqoh</Label>
@@ -167,21 +184,21 @@ const TambahDrill: FC<any> = ({
         <div>
           <Label>Level Drill</Label>
           <Select
-            value={drillLevel}
-            onValueChange={setDrillLevel}
+            value={selectedDrill}
+            onValueChange={setSelectedDrill}
             disabled={!juz}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Pilih level drill" />
+              <SelectValue placeholder="Pilih Level Drill" />
             </SelectTrigger>
-
             <SelectContent>
-              {drills.map((drill) => (
+              {drills.map(drill => (
                 <SelectItem
                   key={drill.drillNumber}
                   value={String(drill.drillNumber)}
                 >
-                  Drill {drill.drillNumber} — {formatDrillDescription(drill)}
+                  Level {drill.drillNumber} —{" "}
+                  {formatDrillDescription(drill)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -192,6 +209,7 @@ const TambahDrill: FC<any> = ({
         {pageBased ? (
           <div className="space-y-2">
             <Label>Halaman Hafalan</Label>
+
             {manualPages.map(p => (
               <div key={p.id} className="flex gap-2">
                 <Input
@@ -218,6 +236,7 @@ const TambahDrill: FC<any> = ({
                 </Button>
               </div>
             ))}
+
             <Button size="sm" variant="outline" onClick={addPage}>
               <Plus className="w-4 h-4 mr-1" /> Tambah Halaman
             </Button>
@@ -225,6 +244,7 @@ const TambahDrill: FC<any> = ({
         ) : (
           <div className="space-y-2">
             <Label>Surat & Ayat</Label>
+
             {manualSurahs.map(s => (
               <div key={s.id} className="space-y-2 border p-2 rounded">
                 <Input
@@ -270,6 +290,7 @@ const TambahDrill: FC<any> = ({
                 </div>
               </div>
             ))}
+
             <Button size="sm" variant="outline" onClick={addSurah}>
               <Plus className="w-4 h-4 mr-1" /> Tambah Surat
             </Button>
@@ -301,7 +322,6 @@ const TambahDrill: FC<any> = ({
             onChange={e => setCatatan(e.target.value)}
           />
         </div>
-
       </div>
     </DialogContent>
   );
