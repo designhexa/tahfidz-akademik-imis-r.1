@@ -92,22 +92,6 @@ const mockHalaqoh = [
   { id: "h2", nama_halaqoh: "Halaqoh Al-Furqon" },
 ];
 
-const formatDrillDescription = (drill: DrillDefinition): string => {
-    if ("fullSurah" in drill && drill.fullSurah) {
-      return "1 Surah penuh";
-    }
-
-    if ("pageCount" in drill && drill.pageCount) {
-      return `${drill.pageCount} halaman`;
-    }
-
-    if ("startPage" in drill && "endPage" in drill) {
-      return `Hal ${drill.startPage}–${drill.endPage}`;
-    }
-
-    return "Custom";
-  };
-
 const SetoranHafalan = () => {
   const [search, setSearch] = useState("");
   const [filterJuz, setFilterJuz] = useState("all");
@@ -458,14 +442,24 @@ const SetoranHafalan = () => {
                       </SelectTrigger>
 
                       <SelectContent>
-                        {drills.map(drill => (
-                          <SelectItem
-                            key={drill.drillNumber}
-                            value={String(drill.drillNumber)}
-                          >
-                            Level {drill.drillNumber} — {formatDrillDescription(drill)}
-                          </SelectItem>
-                        ))}
+                        {drills.map(drill => {
+                          const unlocked = isDrillUnlocked(
+                            drillSelectedSantri,
+                            drill.drillNumber,
+                            Number(drillJuz)
+                          );
+
+                          return (
+                            <SelectItem
+                              key={drill.drillNumber}
+                              value={String(drill.drillNumber)}
+                              disabled={!unlocked}
+                            >
+                              {unlocked ? <Unlock className="inline w-3 h-3 mr-1" /> : <Lock className="inline w-3 h-3 mr-1" />}
+                              Level {drill.drillNumber} — {drill.description}
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </div>
