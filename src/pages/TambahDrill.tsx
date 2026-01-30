@@ -100,12 +100,23 @@ const TambahDrill: FC<any> = ({
   }, [selectedDrill]);
 
   /* ===== HELPERS ===== */
-  const formatDrillDescription = (drill: DrillDefinition) => {
-    if ("fullSurah" in drill && drill.fullSurah) return "1 Surah penuh";
-    if ("pageCount" in drill) return `${drill.pageCount} halaman`;
-    if ("startPage" in drill && "endPage" in drill)
-      return `Hal ${drill.startPage}–${drill.endPage}`;
-    return "Custom";
+  const formatDrillDescription = (drill: DrillDefinition): string => {
+    // PAGE BASED
+    if (drill.type === "page") {
+      return `Hal ${drill.pageStart}–${drill.pageEnd}`;
+    }
+
+    // SURAH BASED
+    if (drill.type === "surah") {
+      return drill.surahRanges
+        .map(s => {
+          if (s.fullSurah) return s.surahName;
+          return `${s.surahName} ${s.ayatStart}–${s.ayatEnd}`;
+        })
+        .join(", ");
+    }
+
+    return "-";
   };
 
   const addPage = () =>
