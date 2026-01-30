@@ -54,7 +54,6 @@ const TambahDrill: FC<any> = ({
   const [santriId, setSantriId] = useState("");
   const [tanggal, setTanggal] = useState<Date>();
   const [juz, setJuz] = useState("");
-  const [drillsForJuz, setDrillsForJuz] = useState<DrillDefinition[]>([]);
   const [drillLevel, setDrillLevel] = useState("");
 
   /* ========== DRILL STATE ========== */
@@ -178,7 +177,7 @@ const TambahDrill: FC<any> = ({
             </SelectTrigger>
 
             <SelectContent>
-              {drillsForJuz.map((drill) => (
+              {drills.map((drill) => (
                 <SelectItem
                   key={drill.drillNumber}
                   value={String(drill.drillNumber)}
