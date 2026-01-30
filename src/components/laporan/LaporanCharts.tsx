@@ -57,16 +57,22 @@ const COLORS = [
 export function CapaianKelasChart({ data }: { data: CapaianKelasData[] }) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-base">📊 Capaian per Kelas</CardTitle>
-        <CardDescription>Rata-rata nilai hafalan per kelas</CardDescription>
+      <CardHeader className="pb-2 md:pb-4">
+        <CardTitle className="text-sm md:text-base">📊 Capaian per Kelas</CardTitle>
+        <CardDescription className="text-xs md:text-sm">Rata-rata nilai hafalan per kelas</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px]">
-          <BarChart data={data} layout="vertical">
+      <CardContent className="px-2 md:px-6">
+        <ChartContainer config={chartConfig} className="h-[200px] md:h-[300px] w-full">
+          <BarChart data={data} layout="vertical" margin={{ left: 0, right: 10, top: 5, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-            <XAxis type="number" domain={[0, 100]} />
-            <YAxis type="category" dataKey="kelas" width={120} tick={{ fontSize: 12 }} />
+            <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10 }} />
+            <YAxis 
+              type="category" 
+              dataKey="kelas" 
+              width={80} 
+              tick={{ fontSize: 9 }} 
+              tickFormatter={(value) => value.length > 12 ? value.slice(0, 10) + '...' : value}
+            />
             <ChartTooltip content={<ChartTooltipContent />} />
             <Bar dataKey="rataRata" name="Rata-rata Nilai" radius={[0, 4, 4, 0]}>
               {data.map((_, index) => (
@@ -83,16 +89,23 @@ export function CapaianKelasChart({ data }: { data: CapaianKelasData[] }) {
 export function CapaianHalaqohChart({ data }: { data: CapaianHalaqohData[] }) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-base">📊 Capaian per Halaqoh</CardTitle>
-        <CardDescription>Rata-rata nilai hafalan per halaqoh</CardDescription>
+      <CardHeader className="pb-2 md:pb-4">
+        <CardTitle className="text-sm md:text-base">📊 Capaian per Halaqoh</CardTitle>
+        <CardDescription className="text-xs md:text-sm">Rata-rata nilai hafalan per halaqoh</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px]">
-          <BarChart data={data}>
+      <CardContent className="px-2 md:px-6">
+        <ChartContainer config={chartConfig} className="h-[200px] md:h-[300px] w-full">
+          <BarChart data={data} margin={{ left: -20, right: 10, top: 5, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="halaqoh" tick={{ fontSize: 11 }} angle={-15} textAnchor="end" height={60} />
-            <YAxis domain={[0, 100]} />
+            <XAxis 
+              dataKey="halaqoh" 
+              tick={{ fontSize: 9 }} 
+              angle={-25} 
+              textAnchor="end" 
+              height={50}
+              tickFormatter={(value) => value.length > 10 ? value.slice(0, 8) + '...' : value}
+            />
+            <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
             <ChartTooltip content={<ChartTooltipContent />} />
             <Bar dataKey="rataRata" name="Rata-rata Nilai" radius={[4, 4, 0, 0]}>
               {data.map((_, index) => (
@@ -116,21 +129,25 @@ export function CapaianSiswaChart({ data }: { data: CapaianSiswaData[] }) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-base">📊 Top 5 Santri Berprestasi</CardTitle>
-        <CardDescription>Persentase capaian hafalan tertinggi</CardDescription>
+      <CardHeader className="pb-2 md:pb-4">
+        <CardTitle className="text-sm md:text-base">📊 Top 5 Santri Berprestasi</CardTitle>
+        <CardDescription className="text-xs md:text-sm">Persentase capaian hafalan tertinggi</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px]">
+      <CardContent className="px-2 md:px-6">
+        <ChartContainer config={chartConfig} className="h-[220px] md:h-[300px] w-full">
           <PieChart>
             <Pie
               data={pieData}
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-              outerRadius={80}
+              label={({ name, percent }) => {
+                const shortName = name.length > 8 ? name.slice(0, 6) + '..' : name;
+                return `${shortName}: ${(percent * 100).toFixed(0)}%`;
+              }}
+              outerRadius={60}
               dataKey="value"
+              style={{ fontSize: 10 }}
             >
               {pieData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} />

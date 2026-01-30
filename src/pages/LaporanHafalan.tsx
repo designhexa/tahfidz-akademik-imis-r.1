@@ -107,75 +107,77 @@ const LaporanHafalan = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Laporan Hafalan</h1>
-            <p className="text-muted-foreground">Rekap dan analisis capaian hafalan santri</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Laporan Hafalan</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Rekap dan analisis capaian hafalan santri</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleExportExcel}>
-              <Download className="w-4 h-4 mr-2" />
-              Excel
+            <Button variant="outline" size="sm" className="flex-1 md:flex-none" onClick={handleExportExcel}>
+              <Download className="w-4 h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Excel</span>
+              <span className="sm:hidden">XLS</span>
             </Button>
-            <Button className="bg-gradient-to-r from-green-500 to-lime-500" onClick={handleExportPDF}>
-              <FileText className="w-4 h-4 mr-2" />
-              Export PDF
+            <Button size="sm" className="flex-1 md:flex-none bg-gradient-to-r from-green-500 to-lime-500" onClick={handleExportPDF}>
+              <FileText className="w-4 h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Export PDF</span>
+              <span className="sm:hidden">PDF</span>
             </Button>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
           <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-primary" />
+            <CardContent className="p-3 md:pt-4 md:p-6">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold">105</p>
-                  <p className="text-xs text-muted-foreground">Total Setoran</p>
+                <div className="min-w-0">
+                  <p className="text-lg md:text-2xl font-bold">105</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground truncate">Total Setoran</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-secondary" />
+            <CardContent className="p-3 md:pt-4 md:p-6">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
+                  <FileText className="w-4 h-4 md:w-5 md:h-5 text-secondary" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold">1,950</p>
-                  <p className="text-xs text-muted-foreground">Total Ayat</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-yellow-500" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">92.5</p>
-                  <p className="text-xs text-muted-foreground">Rata-rata Nilai</p>
+                <div className="min-w-0">
+                  <p className="text-lg md:text-2xl font-bold">1,950</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground truncate">Total Ayat</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-blue-500" />
+            <CardContent className="p-3 md:pt-4 md:p-6">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
+                  <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-accent-foreground" />
                 </div>
-                <div>
-                  <p className="text-2xl font-bold">48</p>
-                  <p className="text-xs text-muted-foreground">Santri Aktif</p>
+                <div className="min-w-0">
+                  <p className="text-lg md:text-2xl font-bold">92.5</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground truncate">Rata-rata</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 md:pt-4 md:p-6">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                  <Users className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-lg md:text-2xl font-bold">48</p>
+                  <p className="text-[10px] md:text-xs text-muted-foreground truncate">Santri Aktif</p>
                 </div>
               </div>
             </CardContent>
