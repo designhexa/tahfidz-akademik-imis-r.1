@@ -55,29 +55,6 @@ const jenisSetoranOptions = [
   { value: "drill", label: "Drill", icon: Target, description: "Latihan hafalan intensif" },
 ];
 
-// Drill levels dengan Drill 1 Juz baru
-const drillLevels = [
-  { id: "drill1", name: "Drill 1", desc: "5 Halaman / 5 Surat", icon: "📘" },
-  { id: "drill2", name: "Drill 2", desc: "5 Halaman berikutnya", icon: "📗" },
-  { id: "drillHalfJuz", name: "Drill ½ Juz", desc: "10 Halaman", icon: "📙" },
-  { id: "drillFirstHalf", name: "½ Juz Pertama", desc: "Setengah juz awal", icon: "📕" },
-  { id: "drillSecondHalf", name: "½ Juz Kedua", desc: "Setengah juz akhir", icon: "📓" },
-  { id: "drill1Juz", name: "Drill 1 Juz", desc: "Latihan 1 juz penuh", icon: "📖" },
-  { id: "tasmi1Juz", name: "Tasmi' 1 Juz", desc: "Ujian lengkap 1 juz", icon: "🏆" },
-];
-
-// Drill levels untuk juz 29-30 (lebih banyak karena surah pendek)
-const drillLevels2930 = [
-  { id: "drill1", name: "Drill 1", desc: "5 Surat pertama", icon: "📘" },
-  { id: "drill2", name: "Drill 2", desc: "5 Surat berikutnya", icon: "📗" },
-  { id: "drill3", name: "Drill 3", desc: "5 Surat berikutnya", icon: "📙" },
-  { id: "drillHalfJuz", name: "Drill ½ Juz", desc: "15 Surat", icon: "📕" },
-  { id: "drillFirstHalf", name: "½ Juz Pertama", desc: "Setengah juz awal", icon: "📓" },
-  { id: "drillSecondHalf", name: "½ Juz Kedua", desc: "Setengah juz akhir", icon: "📔" },
-  { id: "drill1Juz", name: "Drill 1 Juz", desc: "Latihan 1 juz penuh", icon: "📖" },
-  { id: "tasmi1Juz", name: "Tasmi' 1 Juz", desc: "Ujian lengkap 1 juz", icon: "🏆" },
-];
-
 // Mock data
 const mockSantri = [
   { id: "1", nama: "Muhammad Faiz", nis: "S001", halaqoh: "Halaqoh Al-Azhary" },
