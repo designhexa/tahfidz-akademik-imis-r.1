@@ -300,6 +300,196 @@ const TambahDrill: FC<any> = ({
           )
         )}
 
+        {/* Manual Input Section - Only for page-based drills after drill level selected */}
+                {isPageBased && juz && drillLevel && selectedDrill && (
+                  <Card className="border-dashed border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/20">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-amber-600" />
+                          Input Halaman {selectedDrill.name}
+                        </CardTitle>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={handleAddManualDrill}
+                          className="h-7 text-xs"
+                        >
+                          <Plus className="w-3 h-3 mr-1" />
+                          Tambah
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Range: Halaman {selectedDrill.pageStart} - {selectedDrill.pageEnd}
+                      </p>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {manualDrills.length === 0 ? (
+                        <p className="text-xs text-muted-foreground text-center py-2">
+                          Klik "Tambah" untuk input halaman
+                        </p>
+                      ) : (
+                        manualDrills.map((md) => (
+                          <div key={md.id} className="flex items-center gap-2 p-2 bg-background rounded border">
+                            <Input
+                              type="number"
+                              min={selectedDrill.pageStart || 1}
+                              max={selectedDrill.pageEnd || 20}
+                              value={md.pageStart}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                const minPage = Math.max(
+                                  selectedDrill.pageStart || 1,
+                                  Math.max(...completedPages, 0) + 1
+                                );
+                                const maxPage = selectedDrill.pageEnd || 20;
+                                const clampedVal = Math.max(minPage, Math.min(maxPage, val));
+                                handleManualDrillChange(md.id, 'pageStart', clampedVal);
+                              }}
+                              placeholder="Dari"
+                              className="h-8 w-20"
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                              onClick={() => handleRemoveManualDrill(md.id)}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))
+                      )}
+                      <p className="text-xs text-amber-600">
+                        ⚠️ Halaman harus dalam range {selectedDrill.pageStart} - {selectedDrill.pageEnd}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Multi Surah Selection - Only for surah-based drills */}
+                {!isPageBased && juz && drillLevel && (
+                  <Card className="border-dashed border-primary/50 bg-primary/5">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm">Input Surat</CardTitle>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm"
+                          onClick={handleAddSurahEntry}
+                          disabled={!juz}
+                          className="h-7 text-xs"
+                        >
+                          <Plus className="w-3 h-3 mr-1" />
+                          Tambah Surat
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {surahEntries.map((entry, index) => {
+                        const selectedSurah = surahByJuz.find(s => s.number === entry.surahNumber);
+                        return (
+                          <div key={entry.id} className="space-y-3 p-3 bg-background rounded-lg border relative">
+                            {surahEntries.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute top-2 right-2 h-6 w-6 text-muted-foreground hover:text-destructive"
+                                onClick={() => handleRemoveSurahEntry(entry.id)}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            )}
+                            
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge variant="secondary" className="text-xs">Surat {index + 1}</Badge>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-xs">Nama Surah *</Label>
+                              <Select 
+                                value={entry.surahNumber ? String(entry.surahNumber) : ""} 
+                                onValueChange={(v) => handleSurahEntryChange(entry.id, "surahNumber", v)}
+                                disabled={!juz}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder={juz ? "Pilih surah" : "Pilih juz dulu"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {surahByJuz.map((s) => (
+                                    <SelectItem key={s.number} value={String(s.number)}>
+                                      {s.number}. {s.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {selectedSurah && (
+                              <div className="p-2 bg-primary/10 rounded border border-primary/20">
+                                <p className="text-xs">
+                                  {selectedSurah.name} ({selectedSurah.arabicName}) – {selectedSurah.numberOfAyahs} ayat
+                                </p>
+                              </div>
+                            )}
+
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <Label className="text-xs">Ayat Dari *</Label>
+                                <Input
+                                  type="number"
+                                  min={1}
+                                  max={selectedSurah?.numberOfAyahs}
+                                  value={entry.ayatDari}
+                                  onChange={(e) => handleSurahEntryChange(entry.id, "ayatDari", Number(e.target.value))}
+                                  disabled={!selectedSurah}
+                                  className="h-9"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-xs">Ayat Sampai *</Label>
+                                <Input
+                                  type="number"
+                                  min={entry.ayatDari}
+                                  max={selectedSurah?.numberOfAyahs}
+                                  value={entry.ayatSampai}
+                                  onChange={(e) => handleSurahEntryChange(entry.id, "ayatSampai", Number(e.target.value))}
+                                  disabled={!selectedSurah}
+                                  className="h-9"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Page-based drill info */}
+                {isPageBased && juz && selectedDrill && manualDrills.length === 0 && (
+                  <Card className="border-dashed border-primary/50 bg-primary/5">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-medium">Halaman {selectedDrill.pageStart} - {selectedDrill.pageEnd}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(selectedDrill.pageEnd || 0) - (selectedDrill.pageStart || 0) + 1} halaman
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+
         {/* PENILAIAN */}
         <div className="space-y-2 pt-4 border-t">
           <Label>Jumlah Kesalahan</Label>
