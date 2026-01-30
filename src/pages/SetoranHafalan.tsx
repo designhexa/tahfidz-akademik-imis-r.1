@@ -92,6 +92,22 @@ const mockHalaqoh = [
   { id: "h2", nama_halaqoh: "Halaqoh Al-Furqon" },
 ];
 
+const formatDrillDescription = (drill: DrillDefinition): string => {
+    if ("fullSurah" in drill && drill.fullSurah) {
+      return "1 Surah penuh";
+    }
+
+    if ("pageCount" in drill && drill.pageCount) {
+      return `${drill.pageCount} halaman`;
+    }
+
+    if ("startPage" in drill && "endPage" in drill) {
+      return `Hal ${drill.startPage}–${drill.endPage}`;
+    }
+
+    return "Custom";
+  };
+
 const SetoranHafalan = () => {
   const [search, setSearch] = useState("");
   const [filterJuz, setFilterJuz] = useState("all");
@@ -118,6 +134,7 @@ const SetoranHafalan = () => {
   const [drillSelectedSantri, setDrillSelectedSantri] = useState("");
   const [tanggalDrill, setTanggalDrill] = useState<Date>();
   const [drillJuz, setDrillJuz] = useState("");
+  const [drillLevelSelected, setDrillLevelSelected] = useState("");
   const drills: DrillDefinition[] = useMemo(() => {
     if (!drillJuz) return [];
     return getDrillsForJuz(Number(drillJuz));
@@ -273,22 +290,6 @@ const SetoranHafalan = () => {
     const matchJenis = filterJenis === "all" || item.jenis === filterJenis;
     return matchSearch && matchJuz && matchJenis;
   });
-
-  const formatDrillDescription = (drill: DrillDefinition): string => {
-    if ("fullSurah" in drill && drill.fullSurah) {
-      return "1 Surah penuh";
-    }
-
-    if ("pageCount" in drill && drill.pageCount) {
-      return `${drill.pageCount} halaman`;
-    }
-
-    if ("startPage" in drill && "endPage" in drill) {
-      return `Hal ${drill.startPage}–${drill.endPage}`;
-    }
-
-    return "Custom";
-  };
 
   return (
     <Layout>
