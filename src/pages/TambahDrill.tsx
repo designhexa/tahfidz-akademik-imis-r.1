@@ -72,6 +72,8 @@ const TambahDrill: FC<any> = ({
     return getDrillsForJuz(Number(juz));
   }, [juz]);
 
+
+
   /* ===== MANUAL INPUT (PAGE) ===== */
   const [pages, setPages] = useState<ManualPage[]>([]);
   const [manualDrills, setManualDrills] = useState<
@@ -114,9 +116,23 @@ const TambahDrill: FC<any> = ({
 
   /* ===== RESET SAAT DRILL GANTI ===== */
   useEffect(() => {
-    setPages([]);
-    setManualDrills([]);
+    if (!selectedDrill) return;
+
+    if (selectedDrill.type === 'page') {
+      setPages([{ 
+        id: crypto.randomUUID(), 
+        page: selectedDrill.pageStart ?? 1 
+      }]);
+      setSurahs([]);
+    } else {
+      setSurahs([{ 
+        id: crypto.randomUUID(), 
+        surahName: "" 
+      }]);
+      setPages([]);
+    }
   }, [selectedDrill]);
+
 
   /* ===== DRILL TYPE ===== */
   const isPageBased = selectedDrill?.type === "page";
@@ -232,6 +248,21 @@ const TambahDrill: FC<any> = ({
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {selectedDrill?.type === 'surah' && selectedDrill.surahRanges && (
+          <div className="p-3 rounded border bg-muted space-y-1 text-sm">
+            <p className="font-medium">Target Drill</p>
+
+            {selectedDrill.surahRanges.map((s, i) => (
+              <p key={i}>
+                {s.surahName}
+                {s.fullSurah
+                  ? " (1 surat penuh)"
+                  : ` ayat ${s.ayatStart}–${s.ayatEnd}`}
+              </p>
+            ))}
+          </div>
         )}
 
         {/* MANUAL INPUT PAGE */}
