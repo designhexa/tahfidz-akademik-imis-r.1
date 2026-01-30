@@ -301,7 +301,7 @@ const TambahDrill: FC<any> = ({
         )}
 
         {/* Manual Input Section - Only for page-based drills after drill level selected */}
-                {isPageBased && juz && drillLevel && selectedDrill && (
+                {isPageBased && juz && selectedDrill && (
                   <Card className="border-dashed border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/20">
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
@@ -370,7 +370,7 @@ const TambahDrill: FC<any> = ({
                 )}
 
                 {/* Multi Surah Selection - Only for surah-based drills */}
-                {!isPageBased && juz && drillLevel && (
+                {!isPageBased && juz && selectedDrill && (
                   <Card className="border-dashed border-primary/50 bg-primary/5">
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
