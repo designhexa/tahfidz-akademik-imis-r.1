@@ -77,6 +77,19 @@ const TambahDrill: FC<any> = ({
   /* ===== MANUAL INPUT ===== */
   const [pages, setPages] = useState<ManualPage[]>([]);
   const [surahs, setSurahs] = useState<ManualSurah[]>([]);
+  const [manualDrills, setManualDrills] = useState<{id: string, pageStart: number}[]>([]);
+  const handleAddManualDrill = () => {
+    setManualDrills(m => [...m, { id: crypto.randomUUID(), pageStart: selectedDrill?.pageStart ?? 1 }]);
+  };
+
+  const handleManualDrillChange = (id: string, field: string, value: number) => {
+    setManualDrills(m => m.map(d => d.id === id ? { ...d, [field]: value } : d));
+  };
+
+  const handleRemoveManualDrill = (id: string) => {
+    setManualDrills(m => m.filter(d => d.id !== id));
+  };
+
 
   /* ===== PENILAIAN ===== */
   const [jumlahKesalahan, setJumlahKesalahan] = useState(0);
@@ -88,18 +101,22 @@ const TambahDrill: FC<any> = ({
 
   /* ===== RESET SAAT DRILL GANTI ===== */
   useEffect(() => {
-    setPages([]);
-    setSurahs([]);
+    if (!selectedDrill) return;
+
+    if (selectedDrill.type === 'page') {
+      setPages([{ id: crypto.randomUUID(), page: selectedDrill.pageStart ?? 1 }]);
+      setSurahs([]);
+    } else {
+      setSurahs([{ id: crypto.randomUUID(), surahName: "" }]);
+      setPages([]);
+    }
   }, [selectedDrill]);
 
   /* ===== DRILL TYPE ===== */
   const isPageBased = useMemo(() => {
-    if (!selectedDrill) return false;
-    return (
-      "pageCount" in selectedDrill ||
-      ("startPage" in selectedDrill && "endPage" in selectedDrill)
-    );
+    return selectedDrill?.type === 'page';
   }, [selectedDrill]);
+
 
   /* ===== HELPERS ===== */
   const addPage = () =>
