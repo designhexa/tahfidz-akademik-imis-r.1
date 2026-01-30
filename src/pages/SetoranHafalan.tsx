@@ -305,27 +305,29 @@ const SetoranHafalan = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col gap-3">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Setoran Hafalan</h1>
-            <p className="text-sm md:text-base text-muted-foreground">
+            <h1 className="text-xl md:text-3xl font-bold text-foreground">Setoran Hafalan</h1>
+            <p className="text-xs md:text-base text-muted-foreground">
               Kelola setoran harian, murojaah, tilawah, dan drill hafalan
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleExport}>
-              <Download className="w-4 h-4 mr-2" />
-              Export
+          
+          {/* Action Buttons - Responsive Grid */}
+          <div className="grid grid-cols-3 gap-2 md:flex md:gap-2">
+            <Button variant="outline" size="sm" className="w-full md:w-auto" onClick={handleExport}>
+              <Download className="w-4 h-4 md:mr-2" />
+              <span className="hidden md:inline">Export</span>
             </Button>
             
             {/* Tambah Setoran Dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Tambah Setoran
+                <Button size="sm" className="w-full md:w-auto">
+                  <Plus className="w-4 h-4 md:mr-2" />
+                  <span className="hidden sm:inline">Setoran</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -375,9 +377,9 @@ const SetoranHafalan = () => {
             {/* Tambah Drill Dialog */}
             <Dialog open={isDrillDialogOpen} onOpenChange={setIsDrillDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="outline">
-                  <Target className="w-4 h-4 mr-2" />
-                  Tambah Drill
+                <Button variant="outline" size="sm" className="w-full md:w-auto">
+                  <Target className="w-4 h-4 md:mr-2" />
+                  <span className="hidden sm:inline">Drill</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
@@ -568,20 +570,20 @@ const SetoranHafalan = () => {
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {/* Stats Cards - Responsive */}
+        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-4">
           {jenisSetoranOptions.map((option) => (
             <Card key={option.value}>
-              <CardContent className="pt-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <option.icon className="w-5 h-5 text-primary" />
+              <CardContent className="p-2 md:p-4">
+                <div className="flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-left">
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <option.icon className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                   </div>
-                  <div>
-                    <p className="text-2xl font-bold">
+                  <div className="min-w-0">
+                    <p className="text-lg md:text-2xl font-bold">
                       {mockSetoranList.filter(s => s.jenis === option.value).length}
                     </p>
-                    <p className="text-xs text-muted-foreground">{option.label}</p>
+                    <p className="text-[9px] md:text-xs text-muted-foreground truncate">{option.label}</p>
                   </div>
                 </div>
               </CardContent>
@@ -591,20 +593,20 @@ const SetoranHafalan = () => {
 
         {/* Filters */}
         <Card>
-          <CardContent className="pt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              <div className="relative">
+          <CardContent className="p-3 md:pt-4 md:p-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+              <div className="relative col-span-2 md:col-span-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Cari santri..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-9 md:h-10 text-sm"
                 />
               </div>
               <Select value={filterJenis} onValueChange={setFilterJenis}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Semua Jenis" />
+                <SelectTrigger className="h-9 md:h-10 text-sm">
+                  <SelectValue placeholder="Jenis" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Semua Jenis</SelectItem>
@@ -616,8 +618,8 @@ const SetoranHafalan = () => {
                 </SelectContent>
               </Select>
               <Select value={filterJuz} onValueChange={setFilterJuz}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Semua Juz" />
+                <SelectTrigger className="h-9 md:h-10 text-sm">
+                  <SelectValue placeholder="Juz" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Semua Juz</SelectItem>
@@ -629,8 +631,8 @@ const SetoranHafalan = () => {
                 </SelectContent>
               </Select>
               <Select value={filterHalaqoh} onValueChange={setFilterHalaqoh}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Semua Halaqoh" />
+                <SelectTrigger className="h-9 md:h-10 text-sm">
+                  <SelectValue placeholder="Halaqoh" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Semua Halaqoh</SelectItem>
@@ -644,53 +646,54 @@ const SetoranHafalan = () => {
 
         {/* Table */}
         <Card>
-          <CardHeader>
-            <CardTitle>Riwayat Setoran</CardTitle>
-            <CardDescription>Daftar semua setoran hafalan santri</CardDescription>
+          <CardHeader className="pb-2 md:pb-4">
+            <CardTitle className="text-base md:text-lg">Riwayat Setoran</CardTitle>
+            <CardDescription className="text-xs md:text-sm">Daftar semua setoran hafalan santri</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="rounded-md border">
+          <CardContent className="p-2 md:p-6">
+            <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Tanggal</TableHead>
-                    <TableHead>Santri</TableHead>
-                    <TableHead>Jenis</TableHead>
-                    <TableHead>Juz</TableHead>
-                    <TableHead>Materi</TableHead>
-                    <TableHead>Nilai</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead className="text-xs md:text-sm whitespace-nowrap">Tanggal</TableHead>
+                    <TableHead className="text-xs md:text-sm whitespace-nowrap">Santri</TableHead>
+                    <TableHead className="text-xs md:text-sm whitespace-nowrap">Jenis</TableHead>
+                    <TableHead className="text-xs md:text-sm whitespace-nowrap">Juz</TableHead>
+                    <TableHead className="text-xs md:text-sm whitespace-nowrap hidden md:table-cell">Materi</TableHead>
+                    <TableHead className="text-xs md:text-sm whitespace-nowrap">Nilai</TableHead>
+                    <TableHead className="text-xs md:text-sm whitespace-nowrap">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredSetoran.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                      <TableCell colSpan={7} className="text-center text-muted-foreground py-8 text-sm">
                         Belum ada data setoran
                       </TableCell>
                     </TableRow>
                   ) : (
                     filteredSetoran.map((item) => (
                       <TableRow key={item.id}>
-                        <TableCell>{item.tanggal}</TableCell>
-                        <TableCell className="font-medium">{item.santri}</TableCell>
+                        <TableCell className="text-xs md:text-sm whitespace-nowrap">{item.tanggal}</TableCell>
+                        <TableCell className="font-medium text-xs md:text-sm">{item.santri}</TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="outline" className="text-[10px] md:text-xs">
                             {getJenisLabel(item.jenis)}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge className="bg-primary/10 text-primary border-primary">
+                          <Badge className="bg-primary/10 text-primary border-primary text-[10px] md:text-xs">
                             Juz {item.juz}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-sm">{item.materi}</TableCell>
-                        <TableCell className="font-semibold text-primary">{item.nilai}</TableCell>
+                        <TableCell className="text-xs md:text-sm hidden md:table-cell">{item.materi}</TableCell>
+                        <TableCell className="font-semibold text-primary text-xs md:text-sm">{item.nilai}</TableCell>
                         <TableCell>
                           <Badge className={cn(
+                            "text-[10px] md:text-xs",
                             item.status === "Lancar" || item.status === "Lulus"
-                              ? "bg-green-500 hover:bg-green-600"
-                              : "bg-yellow-500 hover:bg-yellow-600"
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-secondary text-secondary-foreground"
                           )}>
                             {item.status}
                           </Badge>
