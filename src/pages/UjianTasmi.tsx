@@ -138,7 +138,7 @@ const UjianTasmi = () => {
             <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
-                  <Plus className="w-4 h-4 mr-2" />Ujian Baru
+                  <Plus className="w-4 h-4 mr-2" />Tasmi' 1 Juz
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
