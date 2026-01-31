@@ -148,6 +148,27 @@ const SetoranHafalan = () => {
   const nilaiKelancaran = Math.max(0, 100 - parseInt(jumlahKesalahan || "0"));
   const drillNilaiKelancaran = Math.max(0, 100 - parseInt(drillJumlahKesalahan || "0"));
 
+  // Check if manual input meets the drill target
+  const isManualInputComplete = useMemo(() => {
+    if (!useManualInput) return true; // Not using manual input, so it's "complete"
+    if (!drillLevelSelected || !drillJuz) return false;
+    
+    const selectedDrill = drills.find(d => d.drillNumber === Number(drillLevelSelected));
+    if (!selectedDrill || selectedDrill.type !== 'page') return true;
+    
+    // Calculate required pages count
+    const requiredPagesCount = (selectedDrill.pageEnd ?? 0) - (selectedDrill.pageStart ?? 0) + 1;
+    
+    // Check if manual pages cover all required pages
+    const inputPagesSet = new Set(manualPages.map(p => p.page));
+    const allRequiredPages = Array.from(
+      { length: requiredPagesCount }, 
+      (_, i) => (selectedDrill.pageStart ?? 0) + i
+    );
+    
+    return allRequiredPages.every(page => inputPagesSet.has(page));
+  }, [useManualInput, drillLevelSelected, drillJuz, drills, manualPages]);
+
   const filteredSantriForDrillForm = useMemo(() => {
     if (!drillFormHalaqohFilter) return mockSantri;
     return mockSantri.filter(s => s.halaqoh === mockHalaqoh.find(h => h.id === drillFormHalaqohFilter)?.nama_halaqoh);
@@ -692,9 +713,10 @@ const SetoranHafalan = () => {
                       <Save className="w-4 h-4 mr-1" /> Simpan
                     </Button>
                     <Button
-                      className="bg-green-600 hover:bg-green-700"
-                      disabled={drillNilaiKelancaran < BATAS_LULUS_DRILL}
+                      className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
+                      disabled={drillNilaiKelancaran < BATAS_LULUS_DRILL || !isManualInputComplete}
                       onClick={handleLulusDrill}
+                      title={!isManualInputComplete ? "Lengkapi semua halaman target untuk lulus" : undefined}
                     >
                       <Trophy className="w-4 h-4 mr-1" /> Lulus
                     </Button>
@@ -702,6 +724,13 @@ const SetoranHafalan = () => {
                       <RotateCcw className="w-4 h-4 mr-1" /> Ulangi
                     </Button>
                   </div>
+
+                  {/* Warning if manual input incomplete */}
+                  {useManualInput && !isManualInputComplete && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400 text-center">
+                      ⚠️ Input manual belum lengkap. Lengkapi semua halaman target untuk bisa lulus.
+                    </p>
+                  )}
                 </div>
               </DialogContent>
             </Dialog>
