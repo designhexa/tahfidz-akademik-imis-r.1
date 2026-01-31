@@ -28,8 +28,11 @@ import {
   Trophy,
   RotateCcw,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  X,
+  Edit3
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { getSurahsByJuz, Surah } from "@/lib/quran-data";
 import { format, subDays } from "date-fns";
@@ -126,6 +129,10 @@ const SetoranHafalan = () => {
   }, [drillJuz]);
   const [drillJumlahKesalahan, setDrillJumlahKesalahan] = useState("0");
   const [catatanTajwid, setCatatanTajwid] = useState("");
+  
+  // Manual drill input state
+  const [useManualInput, setUseManualInput] = useState(false);
+  const [manualPages, setManualPages] = useState<{ id: string; page: number }[]>([]);
 
   const selectedSantriData = mockSantri.find(s => s.id === selectedSantri);
   
@@ -218,6 +225,22 @@ const SetoranHafalan = () => {
     setDrillLevelSelected("");
     setDrillJumlahKesalahan("0");
     setCatatanTajwid("");
+    setUseManualInput(false);
+    setManualPages([]);
+  };
+
+  const handleAddManualPage = () => {
+    const selectedDrill = drills.find(d => d.drillNumber === Number(drillLevelSelected));
+    const defaultPage = selectedDrill?.pageStart ?? 1;
+    setManualPages(prev => [...prev, { id: crypto.randomUUID(), page: defaultPage }]);
+  };
+
+  const handleUpdateManualPage = (id: string, value: number) => {
+    setManualPages(prev => prev.map(p => p.id === id ? { ...p, page: value } : p));
+  };
+
+  const handleRemoveManualPage = (id: string) => {
+    setManualPages(prev => prev.filter(p => p.id !== id));
   };
 
   const handleSaveDrill = () => {
@@ -227,6 +250,8 @@ const SetoranHafalan = () => {
     }
     
     const santriData = mockSantri.find(s => s.id === drillSelectedSantri);
+    const selectedDrill = drills.find(d => d.drillNumber === Number(drillLevelSelected));
+    
     console.log({
       jenis: "drill",
       santri: santriData?.nama,
@@ -235,9 +260,17 @@ const SetoranHafalan = () => {
       drillLevel: drillLevelSelected,
       nilai: drillNilaiKelancaran,
       catatan: catatanTajwid,
+      isManualInput: useManualInput,
+      manualPages: useManualInput ? manualPages.map(p => p.page) : null,
+      targetPages: selectedDrill?.type === 'page' 
+        ? { start: selectedDrill.pageStart, end: selectedDrill.pageEnd }
+        : null,
     });
     
-    toast.success("Drill berhasil disimpan!");
+    toast.success(useManualInput 
+      ? `Drill (input manual: ${manualPages.length} halaman) berhasil disimpan!`
+      : "Drill berhasil disimpan!"
+    );
     setIsDrillDialogOpen(false);
     resetDrillForm();
   };
@@ -472,19 +505,101 @@ const SetoranHafalan = () => {
 
                     if (selectedDrill.type === 'page') {
                       return (
-                        <Card className="border-dashed border-primary/50">
-                          <CardContent className="p-4">
-                            <div className="flex items-center gap-3">
-                              <BookOpen className="w-5 h-5 text-primary" />
-                              <div>
-                                <p className="font-medium">Target Drill: Halaman</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Halaman {selectedDrill.pageStart} – {selectedDrill.pageEnd}
-                                </p>
+                        <>
+                          <Card className="border-dashed border-primary/50">
+                            <CardContent className="p-4">
+                              <div className="flex items-center gap-3">
+                                <BookOpen className="w-5 h-5 text-primary" />
+                                <div>
+                                  <p className="font-medium">Target Drill: Halaman</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Halaman {selectedDrill.pageStart} – {selectedDrill.pageEnd}
+                                  </p>
+                                </div>
                               </div>
+                            </CardContent>
+                          </Card>
+
+                          {/* Manual Input Toggle */}
+                          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/50">
+                            <div className="flex items-center gap-2">
+                              <Edit3 className="w-4 h-4 text-muted-foreground" />
+                              <Label htmlFor="manual-input" className="text-sm cursor-pointer">
+                                Input Manual (tidak sesuai target)
+                              </Label>
                             </div>
-                          </CardContent>
-                        </Card>
+                            <Switch
+                              id="manual-input"
+                              checked={useManualInput}
+                              onCheckedChange={(checked) => {
+                                setUseManualInput(checked);
+                                if (!checked) setManualPages([]);
+                              }}
+                            />
+                          </div>
+
+                          {/* Manual Pages Input */}
+                          {useManualInput && (
+                            <Card className="border-dashed border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/20">
+                              <CardHeader className="pb-2">
+                                <div className="flex justify-between items-center">
+                                  <CardTitle className="text-sm flex items-center gap-2">
+                                    <Edit3 className="w-4 h-4" />
+                                    Input Halaman Manual
+                                  </CardTitle>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={handleAddManualPage}
+                                    className="h-7"
+                                  >
+                                    <Plus className="w-3 h-3 mr-1" />
+                                    Tambah
+                                  </Button>
+                                </div>
+                                <CardDescription className="text-xs">
+                                  Masukkan halaman yang berhasil dihafalkan
+                                </CardDescription>
+                              </CardHeader>
+
+                              <CardContent className="space-y-2">
+                                {manualPages.length === 0 ? (
+                                  <p className="text-sm text-muted-foreground text-center py-2">
+                                    Klik "Tambah" untuk menambahkan halaman
+                                  </p>
+                                ) : (
+                                  manualPages.map((mp, index) => (
+                                    <div key={mp.id} className="flex items-center gap-2">
+                                      <span className="text-xs text-muted-foreground w-6">{index + 1}.</span>
+                                      <Input
+                                        type="number"
+                                        value={mp.page}
+                                        min={selectedDrill.pageStart}
+                                        max={selectedDrill.pageEnd}
+                                        onChange={(e) => handleUpdateManualPage(mp.id, Number(e.target.value))}
+                                        className="h-9 flex-1"
+                                        placeholder="Halaman"
+                                      />
+                                      <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        onClick={() => handleRemoveManualPage(mp.id)}
+                                        className="h-9 w-9 text-destructive hover:text-destructive"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                  ))
+                                )}
+                                {manualPages.length > 0 && (
+                                  <p className="text-xs text-muted-foreground pt-2 border-t">
+                                    Total: {manualPages.length} halaman diinput manual
+                                  </p>
+                                )}
+                              </CardContent>
+                            </Card>
+                          )}
+                        </>
                       );
                     }
 
