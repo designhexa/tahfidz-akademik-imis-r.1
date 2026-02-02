@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Layout } from "@/components/Layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Dialog,
   DialogContent,
@@ -42,11 +43,15 @@ import {
   FileText,
   ChevronDown,
   ChevronUp,
-  User
+  User,
+  Image,
+  Users
 } from "lucide-react";
 import { getJuzName } from "@/lib/quran-data";
 import { JuzSelector } from "@/components/JuzSelector";
 import { supabase } from "@/integrations/supabase/client";
+import { TasmiCandidateCard } from "@/components/tasmi/TasmiCandidateCard";
+import { mockSantriProgress, getNextTasmiJuz } from "@/lib/target-hafalan";
 
 const JUZ_ORDER = [30, 29, 28, 27, 26, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
 
@@ -197,9 +202,208 @@ const UjianTasmi = () => {
           {expandedRules && (<CardContent className="text-sm space-y-4"><div><h4 className="font-semibold mb-2">📚 Urutan Juz:</h4><p className="text-muted-foreground">Juz 30 → 29 → 28 → 27 → 26, lalu Juz 1 → 2 → 3 dst...</p></div><div><h4 className="font-semibold mb-2">🏆 Kriteria:</h4><div className="grid grid-cols-2 sm:grid-cols-5 gap-2"><Badge className="bg-emerald-500 text-white justify-center">96-100: Mumtaz Murtafi'</Badge><Badge className="bg-green-500 text-white justify-center">90-95: Mumtaz</Badge><Badge className="bg-blue-500 text-white justify-center">76-89: Jayyid Jiddan</Badge><Badge className="bg-amber-500 text-white justify-center">70-75: Jayyid</Badge><Badge className="bg-red-500 text-white justify-center">&lt;70: Tidak Lulus</Badge></div></div></CardContent>)}
         </Card>
 
-        <Card><CardHeader><CardTitle className="text-lg flex items-center gap-2"><FileText className="w-5 h-5" />Riwayat Ujian Tasmi'</CardTitle></CardHeader><CardContent><div className="overflow-x-auto"><Table><TableHeader><TableRow><TableHead>Tanggal</TableHead><TableHead>Santri</TableHead><TableHead>Juz</TableHead><TableHead className="text-center">Nilai</TableHead><TableHead className="text-center">Predikat</TableHead><TableHead className="text-center">Status</TableHead></TableRow></TableHeader><TableBody>{dummyHasilUjian.map((ujian) => { const pred = getPredikat(ujian.nilaiTotal); return (<TableRow key={ujian.id}><TableCell className="whitespace-nowrap">{new Date(ujian.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</TableCell><TableCell className="font-medium">{ujian.santriNama}</TableCell><TableCell>{getJuzName(ujian.juz)}</TableCell><TableCell className="text-center font-bold">{ujian.nilaiTotal}</TableCell><TableCell className="text-center"><Badge className={`${pred.color} text-white`}>{ujian.predikat}</Badge></TableCell><TableCell className="text-center">{pred.passed ? <Badge variant="outline" className="border-green-500 text-green-600"><CheckCircle2 className="w-3 h-3 mr-1" />Lulus</Badge> : <Badge variant="outline" className="border-red-500 text-red-600"><XCircle className="w-3 h-3 mr-1" />Tidak Lulus</Badge>}</TableCell></TableRow>); })}</TableBody></Table></div></CardContent></Card>
+        {/* Tabs untuk Calon Tasmi dan Riwayat */}
+        <Tabs defaultValue="candidates" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="candidates">
+              <Users className="w-4 h-4 mr-2" />
+              Calon Peserta
+            </TabsTrigger>
+            <TabsTrigger value="history">
+              <FileText className="w-4 h-4 mr-2" />
+              Riwayat Ujian
+            </TabsTrigger>
+            <TabsTrigger value="generate">
+              <Image className="w-4 h-4 mr-2" />
+              Generate Gambar
+            </TabsTrigger>
+          </TabsList>
 
-        <Card><CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5" />Progress Tasmi' Per Santri</CardTitle></CardHeader><CardContent><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{dummySantri.map((santri) => (<Card key={santri.id} className="hover:shadow-md transition-shadow"><CardContent className="p-4"><div className="flex items-start justify-between mb-3"><div><h4 className="font-semibold">{santri.nama}</h4><p className="text-xs text-muted-foreground">{santri.halaqoh}</p></div><Badge variant="outline">{santri.juzSelesai.length} Juz Lulus</Badge></div><div className="flex flex-wrap gap-1">{JUZ_ORDER.slice(0, 10).map((juz) => { const selesai = santri.juzSelesai.includes(juz); return (<div key={juz} className={`w-8 h-8 rounded flex items-center justify-center text-xs font-medium ${selesai ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground'}`} title={`Juz ${juz}`}>{juz}</div>); })}</div></CardContent></Card>))}</div></CardContent></Card>
+          {/* Calon Peserta Tasmi' */}
+          <TabsContent value="candidates" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Award className="w-5 h-5 text-amber-500" />
+                  Calon Peserta Ujian Tasmi'
+                </CardTitle>
+                <CardDescription>
+                  Santri yang telah menyelesaikan drill dan siap mengikuti ujian
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-12">No</TableHead>
+                        <TableHead>Nama Lengkap</TableHead>
+                        <TableHead>Kelas</TableHead>
+                        <TableHead className="text-center">Jumlah Hafalan</TableHead>
+                        <TableHead className="text-center">Juz Berikutnya</TableHead>
+                        <TableHead className="text-center">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {mockSantriProgress
+                        .filter(s => s.eligibleForTasmi)
+                        .map((student, index) => {
+                          const nextJuz = getNextTasmiJuz(student.juzSelesai);
+                          return (
+                            <TableRow key={student.id}>
+                              <TableCell className="font-medium">{index + 1}</TableCell>
+                              <TableCell className="font-medium">{student.nama}</TableCell>
+                              <TableCell>{student.kelas}</TableCell>
+                              <TableCell className="text-center">
+                                <Badge variant="secondary">{student.jumlahJuzHafal} Juz</Badge>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                {nextJuz ? (
+                                  <Badge className="bg-amber-500 hover:bg-amber-600 text-white">
+                                    Juz {nextJuz}
+                                  </Badge>
+                                ) : (
+                                  <Badge className="bg-emerald-500 text-white">Khatam!</Badge>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Badge variant="outline" className="border-primary text-primary">
+                                  <CheckCircle2 className="w-3 h-3 mr-1" />
+                                  Siap Ujian
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Riwayat Ujian */}
+          <TabsContent value="history" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Riwayat Ujian Tasmi'
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Tanggal</TableHead>
+                        <TableHead>Santri</TableHead>
+                        <TableHead>Juz</TableHead>
+                        <TableHead className="text-center">Nilai</TableHead>
+                        <TableHead className="text-center">Predikat</TableHead>
+                        <TableHead className="text-center">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {dummyHasilUjian.map((ujian) => {
+                        const pred = getPredikat(ujian.nilaiTotal);
+                        return (
+                          <TableRow key={ujian.id}>
+                            <TableCell className="whitespace-nowrap">
+                              {new Date(ujian.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </TableCell>
+                            <TableCell className="font-medium">{ujian.santriNama}</TableCell>
+                            <TableCell>{getJuzName(ujian.juz)}</TableCell>
+                            <TableCell className="text-center font-bold">{ujian.nilaiTotal}</TableCell>
+                            <TableCell className="text-center">
+                              <Badge className={`${pred.color} text-white`}>{ujian.predikat}</Badge>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {pred.passed ? (
+                                <Badge variant="outline" className="border-green-500 text-green-600">
+                                  <CheckCircle2 className="w-3 h-3 mr-1" />Lulus
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="border-red-500 text-red-600">
+                                  <XCircle className="w-3 h-3 mr-1" />Tidak Lulus
+                                </Badge>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Generate Gambar */}
+          <TabsContent value="generate" className="mt-4">
+            <TasmiCandidateCard
+              candidates={mockSantriProgress
+                .filter(s => s.eligibleForTasmi)
+                .map((s, i) => {
+                  const nextJuz = getNextTasmiJuz(s.juzSelesai);
+                  return {
+                    no: i + 1,
+                    nama: s.nama,
+                    kelas: s.kelasNumber,
+                    jumlahHafalan: `${s.jumlahJuzHafal} Juz`,
+                    juzDiujikan: nextJuz 
+                      ? s.juzSelesai.length >= 5 
+                        ? `Juz ${s.juzSelesai.slice(-5).join('-')}`
+                        : `Juz ${nextJuz}`
+                      : "Khatam"
+                  };
+                })}
+            />
+          </TabsContent>
+        </Tabs>
+
+        {/* Progress Per Santri */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Progress Tasmi' Per Santri
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {dummySantri.map((santri) => (
+                <Card key={santri.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h4 className="font-semibold">{santri.nama}</h4>
+                        <p className="text-xs text-muted-foreground">{santri.halaqoh}</p>
+                      </div>
+                      <Badge variant="outline">{santri.juzSelesai.length} Juz Lulus</Badge>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {JUZ_ORDER.slice(0, 10).map((juz) => {
+                        const selesai = santri.juzSelesai.includes(juz);
+                        return (
+                          <div
+                            key={juz}
+                            className={`w-8 h-8 rounded flex items-center justify-center text-xs font-medium ${
+                              selesai ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                            }`}
+                            title={`Juz ${juz}`}
+                          >
+                            {juz}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </Layout>
   );
