@@ -133,6 +133,15 @@ const SetoranHafalan = () => {
   // Manual drill input state
   const [useManualInput, setUseManualInput] = useState(false);
   const [manualPages, setManualPages] = useState<{ id: string; page: number }[]>([]);
+  // Manual surah input for Juz 26-30
+  const [manualSurahs, setManualSurahs] = useState<{ 
+    id: string; 
+    surahNumber: number; 
+    surahName: string;
+    ayatStart: number; 
+    ayatEnd: number;
+    fullSurah: boolean;
+  }[]>([]);
 
   const selectedSantriData = mockSantri.find(s => s.id === selectedSantri);
   
@@ -154,20 +163,42 @@ const SetoranHafalan = () => {
     if (!drillLevelSelected || !drillJuz) return false;
     
     const selectedDrill = drills.find(d => d.drillNumber === Number(drillLevelSelected));
-    if (!selectedDrill || selectedDrill.type !== 'page') return true;
+    if (!selectedDrill) return false;
     
-    // Calculate required pages count
-    const requiredPagesCount = (selectedDrill.pageEnd ?? 0) - (selectedDrill.pageStart ?? 0) + 1;
+    // For page-based drills (Juz 1-25)
+    if (selectedDrill.type === 'page') {
+      const requiredPagesCount = (selectedDrill.pageEnd ?? 0) - (selectedDrill.pageStart ?? 0) + 1;
+      const inputPagesSet = new Set(manualPages.map(p => p.page));
+      const allRequiredPages = Array.from(
+        { length: requiredPagesCount }, 
+        (_, i) => (selectedDrill.pageStart ?? 0) + i
+      );
+      return allRequiredPages.every(page => inputPagesSet.has(page));
+    }
     
-    // Check if manual pages cover all required pages
-    const inputPagesSet = new Set(manualPages.map(p => p.page));
-    const allRequiredPages = Array.from(
-      { length: requiredPagesCount }, 
-      (_, i) => (selectedDrill.pageStart ?? 0) + i
-    );
+    // For surah-based drills (Juz 26-30)
+    if (selectedDrill.type === 'surah' && selectedDrill.surahRanges) {
+      // Check if all required surahs are covered
+      for (const requiredSurah of selectedDrill.surahRanges) {
+        const inputSurah = manualSurahs.find(s => s.surahNumber === requiredSurah.surahNumber);
+        if (!inputSurah) return false;
+        
+        // Check if the ayat range covers the requirement
+        if (requiredSurah.fullSurah) {
+          if (!inputSurah.fullSurah) return false;
+        } else {
+          const reqStart = requiredSurah.ayatStart ?? 1;
+          const reqEnd = requiredSurah.ayatEnd ?? 1;
+          if (inputSurah.ayatStart > reqStart || inputSurah.ayatEnd < reqEnd) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
     
-    return allRequiredPages.every(page => inputPagesSet.has(page));
-  }, [useManualInput, drillLevelSelected, drillJuz, drills, manualPages]);
+    return false;
+  }, [useManualInput, drillLevelSelected, drillJuz, drills, manualPages, manualSurahs]);
 
   const filteredSantriForDrillForm = useMemo(() => {
     if (!drillFormHalaqohFilter) return mockSantri;
@@ -248,6 +279,7 @@ const SetoranHafalan = () => {
     setCatatanTajwid("");
     setUseManualInput(false);
     setManualPages([]);
+    setManualSurahs([]);
   };
 
   const handleAddManualPage = () => {
@@ -262,6 +294,30 @@ const SetoranHafalan = () => {
 
   const handleRemoveManualPage = (id: string) => {
     setManualPages(prev => prev.filter(p => p.id !== id));
+  };
+
+  // Manual surah handlers
+  const handleAddManualSurah = () => {
+    const selectedDrill = drills.find(d => d.drillNumber === Number(drillLevelSelected));
+    const defaultSurah = selectedDrill?.surahRanges?.[0];
+    if (defaultSurah) {
+      setManualSurahs(prev => [...prev, { 
+        id: crypto.randomUUID(), 
+        surahNumber: defaultSurah.surahNumber,
+        surahName: defaultSurah.surahName,
+        ayatStart: defaultSurah.ayatStart ?? 1,
+        ayatEnd: defaultSurah.ayatEnd ?? 1,
+        fullSurah: defaultSurah.fullSurah ?? false
+      }]);
+    }
+  };
+
+  const handleUpdateManualSurah = (id: string, updates: Partial<typeof manualSurahs[0]>) => {
+    setManualSurahs(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+  };
+
+  const handleRemoveManualSurah = (id: string) => {
+    setManualSurahs(prev => prev.filter(s => s.id !== id));
   };
 
   const handleSaveDrill = () => {
@@ -282,14 +338,21 @@ const SetoranHafalan = () => {
       nilai: drillNilaiKelancaran,
       catatan: catatanTajwid,
       isManualInput: useManualInput,
-      manualPages: useManualInput ? manualPages.map(p => p.page) : null,
+      manualPages: useManualInput && selectedDrill?.type === 'page' ? manualPages.map(p => p.page) : null,
+      manualSurahs: useManualInput && selectedDrill?.type === 'surah' ? manualSurahs : null,
       targetPages: selectedDrill?.type === 'page' 
         ? { start: selectedDrill.pageStart, end: selectedDrill.pageEnd }
         : null,
+      targetSurahs: selectedDrill?.type === 'surah' ? selectedDrill.surahRanges : null,
     });
     
-    toast.success(useManualInput 
-      ? `Drill (input manual: ${manualPages.length} halaman) berhasil disimpan!`
+    const manualInfo = useManualInput 
+      ? selectedDrill?.type === 'page'
+        ? `${manualPages.length} halaman`
+        : `${manualSurahs.length} surat`
+      : null;
+    toast.success(manualInfo 
+      ? `Drill (input manual: ${manualInfo}) berhasil disimpan!`
       : "Drill berhasil disimpan!"
     );
     setIsDrillDialogOpen(false);
@@ -626,26 +689,167 @@ const SetoranHafalan = () => {
 
                     if (selectedDrill.type === 'surah' && selectedDrill.surahRanges) {
                       return (
-                        <Card className="border-dashed border-primary/50">
-                          <CardContent className="p-4">
-                            <div className="flex items-start gap-3">
-                              <Target className="w-5 h-5 text-primary mt-0.5" />
-                              <div className="space-y-1">
-                                <p className="font-medium">Target Drill: Surat</p>
-                                <div className="text-sm text-muted-foreground space-y-0.5">
-                                  {selectedDrill.surahRanges.map((s, i) => (
-                                    <p key={i}>
-                                      • {s.surahName}
-                                      {s.fullSurah
-                                        ? " (1 surat penuh)"
-                                        : ` ayat ${s.ayatStart}–${s.ayatEnd}`}
-                                    </p>
-                                  ))}
+                        <>
+                          <Card className="border-dashed border-primary/50">
+                            <CardContent className="p-4">
+                              <div className="flex items-start gap-3">
+                                <Target className="w-5 h-5 text-primary mt-0.5" />
+                                <div className="space-y-1">
+                                  <p className="font-medium">Target Drill: Surat</p>
+                                  <div className="text-sm text-muted-foreground space-y-0.5">
+                                    {selectedDrill.surahRanges.map((s, i) => (
+                                      <p key={i}>
+                                        • {s.surahName}
+                                        {s.fullSurah
+                                          ? " (1 surat penuh)"
+                                          : ` ayat ${s.ayatStart}–${s.ayatEnd}`}
+                                      </p>
+                                    ))}
+                                  </div>
                                 </div>
                               </div>
+                            </CardContent>
+                          </Card>
+
+                          {/* Manual Input Toggle for Surah */}
+                          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/50">
+                            <div className="flex items-center gap-2">
+                              <Edit3 className="w-4 h-4 text-muted-foreground" />
+                              <Label htmlFor="manual-input-surah" className="text-sm cursor-pointer">
+                                Input Manual (tidak sesuai target)
+                              </Label>
                             </div>
-                          </CardContent>
-                        </Card>
+                            <Switch
+                              id="manual-input-surah"
+                              checked={useManualInput}
+                              onCheckedChange={(checked) => {
+                                setUseManualInput(checked);
+                                if (!checked) setManualSurahs([]);
+                              }}
+                            />
+                          </div>
+
+                          {/* Manual Surah Input */}
+                          {useManualInput && (
+                            <Card className="border-dashed border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/20">
+                              <CardHeader className="pb-2">
+                                <div className="flex justify-between items-center">
+                                  <CardTitle className="text-sm flex items-center gap-2">
+                                    <Edit3 className="w-4 h-4" />
+                                    Input Surat Manual
+                                  </CardTitle>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={handleAddManualSurah}
+                                    className="h-7"
+                                  >
+                                    <Plus className="w-3 h-3 mr-1" />
+                                    Tambah
+                                  </Button>
+                                </div>
+                                <CardDescription className="text-xs">
+                                  Masukkan surat dan ayat yang berhasil dihafalkan
+                                </CardDescription>
+                              </CardHeader>
+
+                              <CardContent className="space-y-3">
+                                {manualSurahs.length === 0 ? (
+                                  <p className="text-sm text-muted-foreground text-center py-2">
+                                    Klik "Tambah" untuk menambahkan surat
+                                  </p>
+                                ) : (
+                                  manualSurahs.map((ms, index) => (
+                                    <div key={ms.id} className="p-3 border rounded-lg bg-background space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs font-medium text-muted-foreground">Surat {index + 1}</span>
+                                        <Button
+                                          size="icon"
+                                          variant="ghost"
+                                          onClick={() => handleRemoveManualSurah(ms.id)}
+                                          className="h-7 w-7 text-destructive hover:text-destructive"
+                                        >
+                                          <X className="w-3 h-3" />
+                                        </Button>
+                                      </div>
+                                      
+                                      <Select
+                                        value={String(ms.surahNumber)}
+                                        onValueChange={(v) => {
+                                          const surah = selectedDrill.surahRanges?.find(s => s.surahNumber === Number(v));
+                                          if (surah) {
+                                            handleUpdateManualSurah(ms.id, {
+                                              surahNumber: surah.surahNumber,
+                                              surahName: surah.surahName,
+                                              fullSurah: surah.fullSurah ?? false,
+                                              ayatStart: surah.ayatStart ?? 1,
+                                              ayatEnd: surah.ayatEnd ?? 1
+                                            });
+                                          }
+                                        }}
+                                      >
+                                        <SelectTrigger className="h-9">
+                                          <SelectValue placeholder="Pilih Surat" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {selectedDrill.surahRanges?.map((surah) => (
+                                            <SelectItem key={surah.surahNumber} value={String(surah.surahNumber)}>
+                                              {surah.surahName}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+
+                                      <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2">
+                                          <Switch
+                                            id={`fullSurah-${ms.id}`}
+                                            checked={ms.fullSurah}
+                                            onCheckedChange={(checked) => handleUpdateManualSurah(ms.id, { fullSurah: checked })}
+                                          />
+                                          <Label htmlFor={`fullSurah-${ms.id}`} className="text-xs">
+                                            Surat penuh
+                                          </Label>
+                                        </div>
+                                      </div>
+
+                                      {!ms.fullSurah && (
+                                        <div className="flex items-center gap-2">
+                                          <div className="flex-1">
+                                            <Label className="text-xs text-muted-foreground">Ayat mulai</Label>
+                                            <Input
+                                              type="number"
+                                              value={ms.ayatStart}
+                                              min={1}
+                                              onChange={(e) => handleUpdateManualSurah(ms.id, { ayatStart: Number(e.target.value) })}
+                                              className="h-8"
+                                            />
+                                          </div>
+                                          <span className="text-muted-foreground mt-5">–</span>
+                                          <div className="flex-1">
+                                            <Label className="text-xs text-muted-foreground">Ayat akhir</Label>
+                                            <Input
+                                              type="number"
+                                              value={ms.ayatEnd}
+                                              min={ms.ayatStart}
+                                              onChange={(e) => handleUpdateManualSurah(ms.id, { ayatEnd: Number(e.target.value) })}
+                                              className="h-8"
+                                            />
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))
+                                )}
+                                {manualSurahs.length > 0 && (
+                                  <p className="text-xs text-muted-foreground pt-2 border-t">
+                                    Total: {manualSurahs.length} surat diinput manual
+                                  </p>
+                                )}
+                              </CardContent>
+                            </Card>
+                          )}
+                        </>
                       );
                     }
 
@@ -716,7 +920,7 @@ const SetoranHafalan = () => {
                       className="bg-green-600 hover:bg-green-700 disabled:opacity-50"
                       disabled={drillNilaiKelancaran < BATAS_LULUS_DRILL || !isManualInputComplete}
                       onClick={handleLulusDrill}
-                      title={!isManualInputComplete ? "Lengkapi semua halaman target untuk lulus" : undefined}
+                      title={!isManualInputComplete ? "Lengkapi semua target drill untuk lulus" : undefined}
                     >
                       <Trophy className="w-4 h-4 mr-1" /> Lulus
                     </Button>
@@ -728,7 +932,7 @@ const SetoranHafalan = () => {
                   {/* Warning if manual input incomplete */}
                   {useManualInput && !isManualInputComplete && (
                     <p className="text-xs text-amber-600 dark:text-amber-400 text-center">
-                      ⚠️ Input manual belum lengkap. Lengkapi semua halaman target untuk bisa lulus.
+                      ⚠️ Input manual belum lengkap. Lengkapi semua target drill (halaman/surat) untuk bisa lulus.
                     </p>
                   )}
                 </div>
