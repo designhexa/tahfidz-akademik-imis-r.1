@@ -429,6 +429,30 @@ const SetoranHafalan = () => {
                     Pilih santri, jenis setoran dan lengkapi data penilaian
                   </DialogDescription>
                 </DialogHeader>
+                
+                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FormTab)} className="w-full">
+                  <TabsContent value="setoran_baru" className="mt-4">
+                    <TambahSetoran />
+                  </TabsContent>
+
+                  <TabsContent value="murojaah" className="mt-4">
+                    <div className="p-6 text-center text-muted-foreground border rounded-lg">
+                      Form murojaah belum tersedia.
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="tilawah" className="mt-4">
+                    <div className="p-6 text-center text-muted-foreground border rounded-lg">
+                      Form tilawah belum tersedia.
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="tilawah_rumah" className="mt-4">
+                    <div className="p-6 text-center text-muted-foreground border rounded-lg">
+                      Form tilawah rumah belum tersedia.
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </DialogContent>
             </Dialog>
 
