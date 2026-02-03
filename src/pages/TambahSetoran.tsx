@@ -126,14 +126,17 @@ const TambahSetoran = () => {
   };
 
   const handleDateSelect = (date: Date | undefined) => {
+    if (resetMode) return; // kunci tanggal saat reset aktif
     setTanggalSetoran(date);
   };
 
-  const handleResetCalendar = () => {
-    setResetMode(!resetMode);
-    setTanggalSetoran(undefined);
-    if (!resetMode) {
-      toast.info("Mode reset aktif. Semua tanggal dapat dipilih.");
+  const handleResetCalendar = (checked: boolean) => {
+    setResetMode(checked);
+
+    if (checked) {
+      // reset aktif → auto set hari ini
+      setTanggalSetoran(new Date());
+      toast.info("Mode reset aktif. Tanggal otomatis hari ini.");
     } else {
       toast.info("Mode reset dinonaktifkan.");
     }
