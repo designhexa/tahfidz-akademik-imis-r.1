@@ -31,23 +31,16 @@ export function SetoranCalendar({
 
   // Cari tanggal terakhir yang belum diisi
   const getFirstMissingDate = useMemo(() => {
-    // Mulai dari 30 hari lalu
-    const startDate = subDays(today, 30);
-    let currentDate = startDate;
+    // Target tanggal = H-2
+    const targetDate = subDays(today, 2);
 
-    while (isBefore(currentDate, today) || currentDate.getTime() === today.getTime()) {
-      const hasRecord = setoranRecords.some(
-        (r) =>
-          r.santriId === santriId &&
-          format(r.tanggal, "yyyy-MM-dd") === format(currentDate, "yyyy-MM-dd")
-      );
-      
-      if (!hasRecord && !isToday(currentDate)) {
-        return currentDate;
-      }
-      currentDate = addDays(currentDate, 1);
-    }
-    return null;
+    const hasRecord = setoranRecords.some(
+      (r) =>
+        r.santriId === santriId &&
+        format(r.tanggal, "yyyy-MM-dd") === format(targetDate, "yyyy-MM-dd")
+    );
+
+    return hasRecord ? null : targetDate;
   }, [setoranRecords, santriId, today]);
 
   // Cek apakah tanggal bisa dipilih
@@ -170,7 +163,10 @@ export function SetoranCalendar({
                 <p className="font-medium">Setoran belum lengkap!</p>
                 <p className="text-xs mt-1">
                   Silakan isi setoran untuk tanggal{" "}
-                  <strong>{format(getFirstMissingDate, "d MMMM yyyy", { locale: id })}</strong>{" "}
+                  <strong>
+                    {format(getFirstMissingDate, "d MMMM yyyy", { locale: id })}
+                  </strong>
+                  {" "}
                   terlebih dahulu.
                 </p>
               </div>
