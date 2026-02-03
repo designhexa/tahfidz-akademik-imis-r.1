@@ -360,28 +360,7 @@ const TambahSetoran = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Jumlah Kesalahan *</Label>
-                    <Input
-                      type="number"
-                      value={jumlahKesalahan}
-                      min={0}
-                      onChange={(e) => setJumlahKesalahan(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="flex justify-between p-3 bg-muted rounded">
-                    <span>Nilai</span>
-                    <b>{nilaiKelancaran}</b>
-                  </div>
-
-                  {nilaiKelancaran < BATAS_LANCAR_SETORAN && (
-                    <p className="text-sm text-secondary-foreground bg-secondary p-2 rounded">
-                      Kurang {selisihNilai} poin dari batas lancar
-                    </p>
-                  )}
-
-                  <div className="space-y-2">
-                    <Label>Catatan Tajwid</Label>
+                    <Label>Catatan</Label>
                     <Textarea
                       value={catatanTajwid}
                       onChange={(e) => setCatatanTajwid(e.target.value)}
