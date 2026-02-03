@@ -33,17 +33,22 @@ import {
   StudentProgress
 } from "@/lib/target-hafalan";
 import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig
+} from "@/components/ui/chart";
+import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
   PieChart,
   Pie,
-  Cell,
-  Legend
+  Cell
 } from "recharts";
 
 export default function Dashboard() {
@@ -109,9 +114,33 @@ export default function Dashboard() {
 
   // Pie chart data
   const pieChartData = useMemo(() => [
-    { name: "Memenuhi Target", value: targetStats.meetsTarget, color: "hsl(var(--chart-2))" },
-    { name: "Belum Memenuhi", value: targetStats.notMeetsTarget, color: "hsl(var(--chart-1))" },
+    { name: "memenuhi", value: targetStats.meetsTarget, fill: "var(--color-memenuhi)" },
+    { name: "belum", value: targetStats.notMeetsTarget, fill: "var(--color-belum)" },
   ], [targetStats]);
+
+  // Chart config for bar chart
+  const barChartConfig = {
+    memenuhi: {
+      label: "Memenuhi Target",
+      color: "hsl(var(--chart-2))",
+    },
+    belum: {
+      label: "Belum Memenuhi",
+      color: "hsl(var(--chart-1))",
+    },
+  } satisfies ChartConfig;
+
+  // Chart config for pie chart
+  const pieChartConfig = {
+    memenuhi: {
+      label: "Memenuhi Target",
+      color: "hsl(var(--chart-2))",
+    },
+    belum: {
+      label: "Belum Memenuhi",
+      color: "hsl(var(--chart-1))",
+    },
+  } satisfies ChartConfig;
 
   // Students not meeting targets
   const studentsNotMeetingTarget = useMemo(() => {
@@ -202,24 +231,22 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={targetPerKelasData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="name" className="text-xs" />
-                    <YAxis className="text-xs" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))', 
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }} 
-                    />
-                    <Bar dataKey="memenuhi" name="Memenuhi Target" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="belum" name="Belum Memenuhi" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <ChartContainer config={barChartConfig} className="h-64 w-full">
+                <BarChart data={targetPerKelasData} accessibilityLayer>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                  />
+                  <YAxis tickLine={false} axisLine={false} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Bar dataKey="memenuhi" fill="var(--color-memenuhi)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="belum" fill="var(--color-belum)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ChartContainer>
             </CardContent>
           </Card>
 
@@ -235,27 +262,22 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieChartData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {pieChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+              <ChartContainer config={pieChartConfig} className="h-64 w-full">
+                <PieChart accessibilityLayer>
+                  <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+                  <Pie
+                    data={pieChartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                  />
+                  <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+                </PieChart>
+              </ChartContainer>
             </CardContent>
           </Card>
         </div>
@@ -329,7 +351,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-base flex items-center gap-2">
-                    <Award className="w-4 h-4 text-amber-500" />
+                    <Award className="w-4 h-4 text-secondary" />
                     Calon Peserta Tasmi'
                   </CardTitle>
                   <CardDescription>Siap mengikuti ujian</CardDescription>
@@ -366,7 +388,7 @@ export default function Dashboard() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge className="bg-amber-500 hover:bg-amber-600 text-white">
+                          <Badge className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
                             Juz {nextJuz}
                           </Badge>
                         </TableCell>
