@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, User } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Plus, User, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { JuzSelector } from "@/components/JuzSelector";
 import { getSurahsByJuz, Surah } from "@/lib/quran-data";
@@ -38,13 +39,21 @@ function tentukanStatusSetoran(nilai: number): "Lancar" | "Kurang" {
   return nilai >= BATAS_LANCAR_SETORAN ? "Lancar" : "Kurang";
 }
 
+const TAB_DESCRIPTIONS: Record<string, string> = {
+  setoran_baru: "Hafalan baru yang belum pernah disetorkan sebelumnya",
+  murojaah: "Mengulang hafalan yang sudah pernah disetorkan",
+  tilawah: "Membaca Al-Quran dengan tartil di hadapan ustadz",
+  tilawah_rumah: "Laporan tilawah yang dilakukan di rumah",
+};
+
 /* ================= COMPONENT ================= */
 
 const TambahSetoran = () => {
-  // Santri selection state (di luar tabs)
+  // Santri selection state
   const [halaqohFilter, setHalaqohFilter] = useState("");
   const [selectedSantri, setSelectedSantri] = useState("");
   const [tanggalSetoran, setTanggalSetoran] = useState<Date>();
+  const [resetMode, setResetMode] = useState(false);
 
   // Form state
   const [activeTab, setActiveTab] = useState("setoran_baru");
@@ -73,6 +82,8 @@ const TambahSetoran = () => {
 
   const nilaiKelancaran = Math.max(0, 100 - parseInt(jumlahKesalahan || "0"));
   const selisihNilai = Math.max(0, BATAS_LANCAR_SETORAN - nilaiKelancaran);
+
+  const isFormEnabled = selectedSantri && tanggalSetoran;
 
   const handleSubmit = () => {
     if (!selectedSantri || !tanggalSetoran || !juz || !surah) {
@@ -118,221 +129,276 @@ const TambahSetoran = () => {
     setTanggalSetoran(date);
   };
 
+  const handleResetCalendar = () => {
+    setResetMode(!resetMode);
+    setTanggalSetoran(undefined);
+    if (!resetMode) {
+      toast.info("Mode reset aktif. Semua tanggal dapat dipilih.");
+    } else {
+      toast.info("Mode reset dinonaktifkan.");
+    }
+  };
+
+  const getTabLabel = (tab: string) => {
+    switch (tab) {
+      case "setoran_baru": return "Setoran Baru";
+      case "murojaah": return "Murojaah";
+      case "tilawah": return "Tilawah";
+      case "tilawah_rumah": return "Rumah";
+      default: return tab;
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-4 p-4">
-      <h1 className="text-2xl font-bold">Tambah Setoran Hafalan</h1>
-
-      {/* ================= Informasi Santri (Di Luar Tabs) ================= */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <User className="w-4 h-4" />
-            Pilih Santri
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Filter Halaqoh */}
-            <div className="space-y-2">
-              <Label>Filter Halaqoh</Label>
-              <Select
-                value={halaqohFilter || "all"}
-                onValueChange={(v) => {
-                  setHalaqohFilter(v === "all" ? "" : v);
-                  setSelectedSantri("");
-                  setTanggalSetoran(undefined);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Semua Halaqoh" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Halaqoh</SelectItem>
-                  {mockHalaqoh.map((h) => (
-                    <SelectItem key={h.id} value={h.id}>
-                      {h.nama_halaqoh}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Santri */}
-            <div className="space-y-2">
-              <Label>Pilih Santri *</Label>
-              <Select 
-                value={selectedSantri} 
-                onValueChange={(v) => {
-                  setSelectedSantri(v);
-                  setTanggalSetoran(undefined);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih santri" />
-                </SelectTrigger>
-                <SelectContent>
-                  {filteredSantri.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.nama} ({s.nis})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+      {/* ================= Informasi Santri (Di Luar Card) ================= */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <User className="w-5 h-5 text-primary" />
+          <span className="font-medium">Pilih Santri</span>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Filter Halaqoh */}
+          <div className="space-y-2">
+            <Label>Filter Halaqoh</Label>
+            <Select
+              value={halaqohFilter || "all"}
+              onValueChange={(v) => {
+                setHalaqohFilter(v === "all" ? "" : v);
+                setSelectedSantri("");
+                setTanggalSetoran(undefined);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Semua Halaqoh" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Halaqoh</SelectItem>
+                {mockHalaqoh.map((h) => (
+                  <SelectItem key={h.id} value={h.id}>
+                    {h.nama_halaqoh}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {selectedSantriData && (
-            <div className="p-3 bg-primary/10 rounded border text-sm">
-              <span className="font-medium">{selectedSantriData.nama}</span> • {selectedSantriData.halaqoh}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          {/* Santri */}
+          <div className="space-y-2">
+            <Label>Pilih Santri *</Label>
+            <Select 
+              value={selectedSantri} 
+              onValueChange={(v) => {
+                setSelectedSantri(v);
+                setTanggalSetoran(undefined);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih santri" />
+              </SelectTrigger>
+              <SelectContent>
+                {filteredSantri.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.nama} ({s.nis})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {selectedSantriData && (
+          <div className="p-3 bg-primary/10 rounded border text-sm">
+            <span className="font-medium">{selectedSantriData.nama}</span> • {selectedSantriData.halaqoh}
+          </div>
+        )}
+      </div>
 
       {/* ================= Kalender (Muncul setelah pilih santri) ================= */}
       {selectedSantri && (
-        <SetoranCalendar
-          santriId={selectedSantri}
-          setoranRecords={mockSetoranRecords}
-          onSelectDate={handleDateSelect}
-          selectedDate={tanggalSetoran}
-        />
-      )}
-
-      {/* ================= Tabs Jenis Setoran ================= */}
-      {selectedSantri && tanggalSetoran && (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="setoran_baru" className="text-xs">Setoran Baru</TabsTrigger>
-            <TabsTrigger value="murojaah" className="text-xs">Murojaah</TabsTrigger>
-            <TabsTrigger value="tilawah" className="text-xs">Tilawah</TabsTrigger>
-            <TabsTrigger value="tilawah_rumah" className="text-xs">Tilawah Rumah</TabsTrigger>
-          </TabsList>
-
-          {/* Content sama untuk semua tab */}
-          <TabsContent value={activeTab} className="space-y-4 mt-4">
-            {/* Info tanggal terpilih */}
-            <div className="p-3 bg-secondary rounded-lg text-sm">
-              📅 Tanggal: <strong>{format(tanggalSetoran, "dd MMMM yyyy")}</strong>
+        <>
+          {/* Switch Reset Kalender */}
+          <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+            <div className="flex items-center gap-2">
+              <RotateCcw className="w-4 h-4" />
+              <Label htmlFor="reset-mode" className="text-sm cursor-pointer">
+                Mode reset pengisian
+              </Label>
             </div>
+            <Switch
+              id="reset-mode"
+              checked={resetMode}
+              onCheckedChange={handleResetCalendar}
+            />
+          </div>
 
-            {/* Detail Hafalan */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Detail Hafalan</CardTitle>
-                <CardDescription>Pilih juz, surah dan ayat</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <JuzSelector value={juz} onValueChange={setJuz} required />
+          <SetoranCalendar
+            santriId={selectedSantri}
+            setoranRecords={resetMode ? [] : mockSetoranRecords}
+            onSelectDate={handleDateSelect}
+            selectedDate={tanggalSetoran}
+          />
+        </>
+      )}
 
-                <div className="space-y-2">
-                  <Label>Surah *</Label>
-                  <Select value={surah} onValueChange={setSurah} disabled={!juz}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={juz ? "Pilih surah" : "Pilih juz dulu"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {surahByJuz.map((s) => (
-                        <SelectItem key={s.number} value={String(s.number)}>
-                          {s.number}. {s.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+      {/* ================= Tabs Jenis Setoran (Selalu Muncul) ================= */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger 
+            value="setoran_baru" 
+            className="text-xs"
+            disabled={!isFormEnabled}
+          >
+            Setoran Baru
+          </TabsTrigger>
+          <TabsTrigger 
+            value="murojaah" 
+            className="text-xs"
+            disabled={!isFormEnabled}
+          >
+            Murojaah
+          </TabsTrigger>
+          <TabsTrigger 
+            value="tilawah" 
+            className="text-xs"
+            disabled={!isFormEnabled}
+          >
+            Tilawah
+          </TabsTrigger>
+          <TabsTrigger 
+            value="tilawah_rumah" 
+            className="text-xs"
+            disabled={!isFormEnabled}
+          >
+            Rumah
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value={activeTab} className="space-y-4 mt-4">
+          {!isFormEnabled ? (
+            <div className="text-center py-8 text-muted-foreground">
+              {!selectedSantri 
+                ? "Silakan pilih santri terlebih dahulu"
+                : "Pilih tanggal pada kalender untuk melanjutkan"
+              }
+            </div>
+          ) : (
+            <>
+              {/* Info tanggal terpilih & deskripsi tab */}
+              <div className="p-3 bg-secondary rounded-lg text-sm space-y-1">
+                <div>📅 Tanggal: <strong>{format(tanggalSetoran, "dd MMMM yyyy")}</strong></div>
+                <div className="text-muted-foreground text-xs">
+                  {TAB_DESCRIPTIONS[activeTab]}
                 </div>
+              </div>
 
-                {selectedSurah && (
-                  <div className="text-sm bg-primary/10 p-2 rounded">
-                    {selectedSurah.name} – {selectedSurah.numberOfAyahs} ayat
+              {/* Detail Hafalan */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm">{getTabLabel(activeTab)}</CardTitle>
+                  <CardDescription>Pilih juz, surah dan ayat</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <JuzSelector value={juz} onValueChange={setJuz} required />
+
+                  <div className="space-y-2">
+                    <Label>Surah *</Label>
+                    <Select value={surah} onValueChange={setSurah} disabled={!juz}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={juz ? "Pilih surah" : "Pilih juz dulu"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {surahByJuz.map((s) => (
+                          <SelectItem key={s.number} value={String(s.number)}>
+                            {s.number}. {s.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                )}
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <Label>Ayat dari *</Label>
+                  {selectedSurah && (
+                    <div className="text-sm bg-primary/10 p-2 rounded">
+                      {selectedSurah.name} – {selectedSurah.numberOfAyahs} ayat
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <Label>Ayat dari *</Label>
+                      <Input
+                        type="number"
+                        value={ayatDari}
+                        min={1}
+                        max={selectedSurah?.numberOfAyahs}
+                        onChange={(e) => setAyatDari(e.target.value)}
+                        disabled={!selectedSurah}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label>Ayat sampai *</Label>
+                      <Input
+                        type="number"
+                        value={ayatSampai}
+                        min={Number(ayatDari)}
+                        max={selectedSurah?.numberOfAyahs}
+                        onChange={(e) => setAyatSampai(e.target.value)}
+                        disabled={!selectedSurah}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Penilaian */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm">Penilaian</CardTitle>
+                  <CardDescription>Masukkan jumlah kesalahan untuk menghitung nilai</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Jumlah Kesalahan *</Label>
                     <Input
                       type="number"
-                      value={ayatDari}
-                      min={1}
-                      max={selectedSurah?.numberOfAyahs}
-                      onChange={(e) => setAyatDari(e.target.value)}
-                      disabled={!selectedSurah}
+                      value={jumlahKesalahan}
+                      min={0}
+                      onChange={(e) => setJumlahKesalahan(e.target.value)}
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <Label>Ayat sampai *</Label>
-                    <Input
-                      type="number"
-                      value={ayatSampai}
-                      min={Number(ayatDari)}
-                      max={selectedSurah?.numberOfAyahs}
-                      onChange={(e) => setAyatSampai(e.target.value)}
-                      disabled={!selectedSurah}
+                  <div className="flex justify-between p-3 bg-muted rounded">
+                    <span>Nilai</span>
+                    <b>{nilaiKelancaran}</b>
+                  </div>
+
+                  {nilaiKelancaran < BATAS_LANCAR_SETORAN && (
+                    <p className="text-sm text-secondary-foreground bg-secondary p-2 rounded">
+                      Kurang {selisihNilai} poin dari batas lancar
+                    </p>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label>Catatan Tajwid</Label>
+                    <Textarea
+                      value={catatanTajwid}
+                      onChange={(e) => setCatatanTajwid(e.target.value)}
+                      placeholder="Catatan perbaikan bacaan..."
                     />
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            {/* Penilaian */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Penilaian</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Jumlah Kesalahan *</Label>
-                  <Input
-                    type="number"
-                    value={jumlahKesalahan}
-                    min={0}
-                    onChange={(e) => setJumlahKesalahan(e.target.value)}
-                  />
-                </div>
-
-                <div className="flex justify-between p-3 bg-muted rounded">
-                  <span>Nilai</span>
-                  <b>{nilaiKelancaran}</b>
-                </div>
-
-                {nilaiKelancaran < BATAS_LANCAR_SETORAN && (
-                  <p className="text-sm text-secondary-foreground bg-secondary p-2 rounded">
-                    Kurang {selisihNilai} poin dari batas lancar
-                  </p>
-                )}
-
-                <div className="space-y-2">
-                  <Label>Catatan Tajwid</Label>
-                  <Textarea
-                    value={catatanTajwid}
-                    onChange={(e) => setCatatanTajwid(e.target.value)}
-                    placeholder="Catatan perbaikan bacaan..."
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Button onClick={handleSubmit} className="w-full">
-              <Plus className="w-4 h-4 mr-2" />
-              Simpan {activeTab === "setoran_baru" ? "Setoran" : activeTab === "murojaah" ? "Murojaah" : activeTab === "tilawah" ? "Tilawah" : "Tilawah Rumah"}
-            </Button>
-          </TabsContent>
-        </Tabs>
-      )}
-
-      {/* Empty state */}
-      {!selectedSantri && (
-        <div className="text-center py-8 text-muted-foreground">
-          Silakan pilih santri terlebih dahulu untuk memulai input setoran
-        </div>
-      )}
-
-      {selectedSantri && !tanggalSetoran && (
-        <div className="text-center py-4 text-muted-foreground">
-          Pilih tanggal pada kalender untuk melanjutkan input setoran
-        </div>
-      )}
+              <Button onClick={handleSubmit} className="w-full">
+                <Plus className="w-4 h-4 mr-2" />
+                Simpan {getTabLabel(activeTab)}
+              </Button>
+            </>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
