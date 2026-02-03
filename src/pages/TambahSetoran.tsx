@@ -28,9 +28,19 @@ const mockHalaqoh = [
 ];
 
 // Mock setoran records untuk kalender
+const getTanggalHMinus2 = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 2);
+  return d;
+};
+
 const mockSetoranRecords = [
-  { tanggal: new Date(2026, 1, 1), santriId: "1", jenis: "setoran_baru" as const, status: "selesai" as const },
-  { tanggal: new Date(2026, 1, 2), santriId: "1", jenis: "murojaah" as const, status: "selesai" as const },
+  {
+    tanggal: getTanggalHMinus2(),
+    santriId: "1",
+    jenis: "setoran_baru" as const,
+    status: "selesai" as const,
+  },
 ];
 
 const BATAS_LANCAR_SETORAN = 80;
