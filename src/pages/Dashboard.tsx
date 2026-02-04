@@ -181,7 +181,7 @@ export default function Dashboard() {
       title: "Calon Tasmi'",
       value: targetStats.eligibleForTasmi,
       icon: BookOpenCheck,
-      gradient: "from-green-500 to-lime-500",
+      gradient: "from-green-500 to-green-800",
     },
   ];
 

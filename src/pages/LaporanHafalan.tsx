@@ -120,7 +120,7 @@ const LaporanHafalan = () => {
               <span className="hidden sm:inline">Excel</span>
               <span className="sm:hidden">XLS</span>
             </Button>
-            <Button size="sm" className="flex-1 md:flex-none bg-gradient-to-r from-green-500 to-lime-500" onClick={handleExportPDF}>
+            <Button size="sm" className="flex-1 md:flex-none bg-[#015504]" onClick={handleExportPDF}>
               <FileText className="w-4 h-4 mr-1 md:mr-2" />
               <span className="hidden sm:inline">Export PDF</span>
               <span className="sm:hidden">PDF</span>
