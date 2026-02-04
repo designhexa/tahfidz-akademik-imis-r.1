@@ -1,6 +1,7 @@
 import { RaporTahfidz, getPredikat } from "@/lib/rapor-tahfidz-types";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import kopSuratImis from "@/assets/kop-surat-imis.png";
 
 interface RaporTahfidzPreviewProps {
   data: RaporTahfidz;
@@ -9,19 +10,33 @@ interface RaporTahfidzPreviewProps {
 export const RaporTahfidzPreview = ({ data }: RaporTahfidzPreviewProps) => {
   return (
     <div className="bg-white text-black p-6 space-y-6 text-sm" id="rapor-content">
+      {/* Kop Surat Header */}
+      <div className="border-b-2 border-[#1a5632] pb-4 mb-4">
+        <img 
+          src={kopSuratImis} 
+          alt="Kop Surat IMIS" 
+          className="w-full h-auto object-contain"
+        />
+      </div>
+
+      {/* Judul Rapor */}
+      <div className="text-center pb-4">
+        <h2 className="font-bold text-lg uppercase">Laporan Hasil Belajar Tilawah & Tahfidzul Qur'an</h2>
+      </div>
+
       {/* Header Identitas */}
       <div className="grid grid-cols-2 gap-4 border-b pb-4">
         <div className="space-y-1">
           <div className="flex gap-2">
-            <span className="w-20">Nama</span>
+            <span className="w-24">Nama</span>
             <span>: {data.identitas.nama}</span>
           </div>
           <div className="flex gap-2">
-            <span className="w-20">No. Induk</span>
+            <span className="w-24">No. Induk</span>
             <span>: {data.identitas.nis}</span>
           </div>
           <div className="flex gap-2">
-            <span className="w-20">NISN</span>
+            <span className="w-24">NISN</span>
             <span>: {data.identitas.nisn}</span>
           </div>
         </div>
