@@ -49,7 +49,7 @@ const tilawahItems = [
   { title: "Dashboard", url: "/tilawah/dashboard", icon: LayoutDashboard },
   { title: "Setoran Tilawah", url: "/tilawah/absensi", icon: BookOpenCheck },
   { title: "Laporan Tilawah", url: "/tilawah/laporan", icon: FileText },
-  { title: "Ujian Tilawah Semester", url: "/tilawah/ujian", icon: Award },
+  { title: "Ujian Tilawah", url: "/tilawah/ujian", icon: Award },
   { title: "Rapor Tilawah", url: "/tilawah/rapor", icon: FileSpreadsheet },
 ];
 
