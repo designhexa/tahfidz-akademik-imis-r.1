@@ -137,7 +137,7 @@ export function AppSidebar() {
     <Sidebar className="border-r border-border bg-card">
       <SidebarContent>
         {/* Header */}
-        <div className="p-2 bg-[#015504] text-white">
+        <div className="p-3 bg-[#015504] text-white">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
               <BookOpen className="w-6 h-6 text-white" />
