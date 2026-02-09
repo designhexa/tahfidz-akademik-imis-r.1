@@ -54,9 +54,9 @@ export default function TilawahUjian() {
  
    // Mock ujian data
    const mockUjianData = [
-     { id: "1", santriId: "s1", nama: "Ahmad Fauzi", kelas: "3A", jilidDari: 1, jilidTujuan: 2, nilaiTotal: 85, status: "lulus" },
-     { id: "2", santriId: "s3", nama: "Muhammad Rizki", kelas: "3A", jilidDari: 1, jilidTujuan: 2, nilaiTotal: 72, status: "tidak_lulus" },
-     { id: "3", santriId: "s5", nama: "Umar Abdullah", kelas: "4A", jilidDari: 2, jilidTujuan: 3, nilaiTotal: 88, status: "lulus" },
+     { id: "1", santriId: "s1", nama: "Ahmad Fauzi", kelas: "3A", jilidDari: 1, jilidTujuan: 2, nilaiTotal: 85, status: "Lulus" },
+     { id: "2", santriId: "s3", nama: "Muhammad Rizki", kelas: "3A", jilidDari: 1, jilidTujuan: 2, nilaiTotal: 72, status: "Mengulang" },
+     { id: "3", santriId: "s5", nama: "Umar Abdullah", kelas: "4A", jilidDari: 2, jilidTujuan: 3, nilaiTotal: 88, status: "Lulus" },
    ];
  
    const getKriteriaByJilid = (jilid: number) => {
