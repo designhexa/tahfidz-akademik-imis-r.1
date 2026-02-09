@@ -18,7 +18,7 @@ import {
   Clock
 } from "lucide-react";
 import { RaporTahfidzPreview } from "@/components/rapor/RaporTahfidzPreview";
-import { mockRaporData, RaporTahfidz, getPredikat } from "@/lib/rapor-tahfidz-types";
+import { getMockRaporData, RaporTahfidz, getPredikat } from "@/lib/rapor-tahfidz-types";
 import { mockSantriProgress } from "@/lib/target-hafalan";
 import html2canvas from "html2canvas";
 import { useToast } from "@/hooks/use-toast";
@@ -28,7 +28,14 @@ const mockSantriRapor = mockSantriProgress.map((santri, index) => ({
   ...santri,
   statusDataNilai: index % 3 === 0 ? "Lengkap" : index % 3 === 1 ? "Sebagian" : "Belum Ada",
   statusRapor: index % 4 === 0 ? "Sudah Generate" : "Belum Generate",
-  raporData: mockRaporData, // In real app, this would be fetched per santri
+  raporData: getMockRaporData({
+  id: santri.id,
+  nama: santri.nama,
+  nis: santri.nis,
+  kelas: santri.kelas,
+})
+
+// In real app, this would be fetched per santri
 }));
 
 const RaporSemester = () => {
