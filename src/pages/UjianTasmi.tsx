@@ -335,7 +335,7 @@ const UjianTasmi = () => {
                                 </Badge>
                               ) : (
                                 <Badge variant="outline" className="border-red-500 text-red-600">
-                                  <XCircle className="w-3 h-3 mr-1" />Tidak Lulus
+                                  <XCircle className="w-3 h-3 mr-1" />Mengulang
                                 </Badge>
                               )}
                             </TableCell>
