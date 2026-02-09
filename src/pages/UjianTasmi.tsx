@@ -128,6 +128,11 @@ const UjianTasmi = () => {
   const resetForm1Juz = () => { setSelectedSantri(""); setSelectedJuz(""); setPenilaianHalaman(Array.from({ length: 20 }, (_, i) => ({ halaman: i + 1, pancingan: 0, catatan: "" }))); setCatatanUmum(""); setDiberhentikan(false); };
   const resetForm5Juz = () => { setSelectedSantri5Juz(""); setSelectedJuzList([]); setPenilaian5Juz([]); setCatatanUmum5Juz(""); setDiberhentikan5Juz(false); };
 
+  const handleUjian = (santri: any) => {
+    console.log("Mulai ujian:", santri.nama);
+    // buka dialog / redirect / set state
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -267,10 +272,15 @@ const UjianTasmi = () => {
                                 )}
                               </TableCell>
                               <TableCell className="text-center">
-                                <Badge variant="outline" className="border-primary text-primary">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="border-primary text-primary hover:bg-primary/10"
+                                  onClick={() => handleUjian(student)}
+                                >
                                   <CheckCircle2 className="w-3 h-3 mr-1" />
-                                  Siap Ujian
-                                </Badge>
+                                  Daftar Ujian
+                                </Button>
                               </TableCell>
                             </TableRow>
                           );
