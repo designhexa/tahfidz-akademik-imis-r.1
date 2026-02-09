@@ -499,48 +499,48 @@ export default function TilawahUjian() {
                   </TableRow>
                 ) : (
                   mockUjianData.map((item, index) => {
-                    const isLulus = item.status?.toLowerCase() === "lulus";
+                  const isLulus = item.status === "Lulus";
 
-                    return (
-                      <TableRow key={item.id}>
-                        <TableCell className="text-center w-12">
-                          {index + 1}
-                        </TableCell>
+                  return (
+                    <TableRow key={item.id}>
+                      <TableCell className="text-center w-12">
+                        {index + 1}
+                      </TableCell>
 
-                        <TableCell className="font-medium">
-                          {item.nama}
-                        </TableCell>
+                      <TableCell className="font-medium">
+                        {item.nama}
+                      </TableCell>
 
-                        <TableCell>
-                          {item.kelas}
-                        </TableCell>
+                      <TableCell>
+                        {item.kelas}
+                      </TableCell>
 
-                        <TableCell>
-                          Jilid {item.jilidDari}
-                        </TableCell>
+                      <TableCell>
+                        Jilid {item.jilidDari}
+                      </TableCell>
 
-                        <TableCell>
-                          {item.jilidTujuan <= 6 ? `Jilid ${item.jilidTujuan}` : "Al-Qur'an"}
-                        </TableCell>
+                      <TableCell>
+                        {item.jilidTujuan <= 6 ? `Jilid ${item.jilidTujuan}` : "Al-Qur'an"}
+                      </TableCell>
 
-                        <TableCell className="text-center font-semibold w-24">
-                          {item.nilaiTotal}
-                        </TableCell>
+                      <TableCell className="text-center font-semibold w-24">
+                        {item.nilaiTotal}
+                      </TableCell>
 
-                        <TableCell className="text-center w-28">
-                          <Badge
-                            className={
-                              isLulus
-                                ? "bg-green-600 text-white"
-                                : "bg-red-600 text-white"
-                            }
-                          >
-                            {item.status}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
+                      <TableCell className="text-center w-28">
+                        <Badge
+                          className={
+                            isLulus
+                              ? "bg-green-600 text-white"
+                              : "bg-red-600 text-white"
+                          }
+                        >
+                          {isLulus ? "Lulus" : "Mengulang"}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
                 )}
               </TableBody>
             </Table>
