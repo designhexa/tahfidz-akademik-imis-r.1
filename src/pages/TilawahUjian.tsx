@@ -498,8 +498,8 @@ export default function TilawahUjian() {
                        <TableCell>{ujian.kelas}</TableCell>
                        <TableCell>Jilid {ujian.jilidDari}</TableCell>
                        <TableCell>{ujian.jilidTujuan <= 6 ? `Jilid ${ujian.jilidTujuan}` : "Al-Qur'an"}</TableCell>
-                       <TableCell className="font-bold">{ujian.nilaiTotal}</TableCell>
-                       <TableCell>
+                       <TableCell text-center className="font-bold">{ujian.nilaiTotal}</TableCell>
+                       <TableCell text-center>
                          <Badge variant={ujian.status === "lulus" ? "default" : "destructive"}>
                            {ujian.status === "lulus" ? "Lulus" : "Mengulang"}
                          </Badge>
