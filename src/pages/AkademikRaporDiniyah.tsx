@@ -138,16 +138,26 @@ export default function AkademikRaporDiniyah() {
                         {santri.statusNilai}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-center">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handlePreview(santri)}
-                        disabled={santri.statusNilai === "Belum Ada"}
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        Preview
-                      </Button>
+                    <TableCell>
+                      <div className="flex items-center justify-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handlePreview(santri)}
+                          disabled={santri.statusNilai === "Belum Ada"}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleDownload}
+                          disabled={santri.statusNilai === "Belum Ada"}
+                        >
+                          <Download className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
