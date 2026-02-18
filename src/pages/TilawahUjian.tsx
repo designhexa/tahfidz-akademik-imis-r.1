@@ -8,7 +8,7 @@
  import { Badge } from "@/components/ui/badge";
  import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
  import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
- import { Search, Plus, Award, Clock, FileText } from "lucide-react";
+ import { Search, Plus, Award, Clock, FileText, RefreshCw } from "lucide-react";
  import { useState } from "react";
 import { 
   MOCK_SANTRI_TILAWAH, 
@@ -27,6 +27,8 @@ export default function TilawahUjian() {
   const [filterHalaqoh, setFilterHalaqoh] = useState("all");
   const [filterKelas, setFilterKelas] = useState("all");
    const [dialogOpen, setDialogOpen] = useState(false);
+   const [remedialDialogOpen, setRemedialDialogOpen] = useState(false);
+   const [remedialTarget, setRemedialTarget] = useState<any>(null);
    
    // Form state
    const [selectedSantri, setSelectedSantri] = useState("");
@@ -52,12 +54,12 @@ export default function TilawahUjian() {
    const [ghoribBaca, setGhoribBaca] = useState("");
    const [ghoribKomentar, setGhoribKomentar] = useState("");
  
-   // Mock ujian data
-   const mockUjianData = [
-     { id: "1", santriId: "s1", nama: "Ahmad Fauzi", kelas: "3A", jilidDari: 1, jilidTujuan: 2, nilaiTotal: 85, status: "Lulus" },
-     { id: "2", santriId: "s3", nama: "Muhammad Rizki", kelas: "3A", jilidDari: 1, jilidTujuan: 2, nilaiTotal: 72, status: "Mengulang" },
-     { id: "3", santriId: "s5", nama: "Umar Abdullah", kelas: "4A", jilidDari: 2, jilidTujuan: 3, nilaiTotal: 88, status: "Lulus" },
-   ];
+   // Mock ujian data with state
+   const [ujianData, setUjianData] = useState([
+     { id: "1", santriId: "s1", nama: "Qurrata 'Ayun", kelas: "Paket B Kelas 8", jilidDari: 3, jilidTujuan: 4, nilaiTotal: 17, skorMaksimal: 20, status: "Lulus", isRemedial: false, remedialKe: 0 },
+     { id: "2", santriId: "s3", nama: "Fayyadah Fayola", kelas: "Paket B Kelas 8", jilidDari: 4, jilidTujuan: 5, nilaiTotal: 12, skorMaksimal: 30, status: "Mengulang", isRemedial: false, remedialKe: 0 },
+     { id: "3", santriId: "s5", nama: "Salwah Lathifah Wasiso", kelas: "Paket B Kelas 8", jilidDari: 2, jilidTujuan: 3, nilaiTotal: 18, skorMaksimal: 20, status: "Lulus", isRemedial: false, remedialKe: 0 },
+   ]);
  
    const getKriteriaByJilid = (jilid: number) => {
      return KRITERIA_KELULUSAN[jilid] || ["tartil", "fashohah", "tajwid_dasar", "ghorib"];
@@ -123,9 +125,64 @@ export default function TilawahUjian() {
      const totalNilai = hitungTotalNilai();
      const nilaiMinimum = getNilaiMinimum();
      const lulus = totalNilai >= nilaiMinimum;
+     const santriData = MOCK_SANTRI_TILAWAH.find(s => s.id === selectedSantri);
 
+     const newUjian = {
+       id: `uj${Date.now()}`,
+       santriId: selectedSantri,
+       nama: santriData?.nama || "",
+       kelas: santriData?.kelas || "",
+       jilidDari: parseInt(jilidDari),
+       jilidTujuan: parseInt(jilidTujuan),
+       nilaiTotal: totalNilai,
+       skorMaksimal: getSkorMaksimal(),
+       status: lulus ? "Lulus" : "Mengulang",
+       isRemedial: false,
+       remedialKe: 0,
+     };
+
+     setUjianData(prev => [newUjian, ...prev]);
      toast.success(`Ujian berhasil disimpan. Nilai: ${totalNilai}/${getSkorMaksimal()} - ${lulus ? "LULUS" : "MENGULANG"}`);
      setDialogOpen(false);
+     resetForm();
+   };
+
+   const handleOpenRemedial = (item: any) => {
+     setRemedialTarget(item);
+     setJilidDari(item.jilidDari.toString());
+     setJilidTujuan(item.jilidTujuan.toString());
+     setRemedialDialogOpen(true);
+   };
+
+   const handleSubmitRemedial = () => {
+     if (!remedialTarget) return;
+     const totalNilai = hitungTotalNilai();
+     const nilaiMinimum = getNilaiMinimum();
+     const lulus = totalNilai >= nilaiMinimum;
+
+     const remedialResult = {
+       id: `rem${Date.now()}`,
+       santriId: remedialTarget.santriId,
+       nama: remedialTarget.nama,
+       kelas: remedialTarget.kelas,
+       jilidDari: remedialTarget.jilidDari,
+       jilidTujuan: remedialTarget.jilidTujuan,
+       nilaiTotal: totalNilai,
+       skorMaksimal: getSkorMaksimal(),
+       status: lulus ? "Lulus" : "Mengulang",
+       isRemedial: true,
+       remedialKe: (remedialTarget.remedialKe || 0) + 1,
+     };
+
+     // Update the original entry status if lulus
+     setUjianData(prev => {
+       const updated = prev.map(u => u.id === remedialTarget.id ? { ...u, status: lulus ? "Lulus (Remedial)" : "Mengulang" } : u);
+       return [remedialResult, ...updated.filter(u => u.id !== remedialTarget.id)];
+     });
+
+     toast.success(`Remedial ke-${remedialResult.remedialKe}: Nilai ${totalNilai}/${getSkorMaksimal()} - ${lulus ? "LULUS" : "MASIH MENGULANG"}`);
+     setRemedialDialogOpen(false);
+     setRemedialTarget(null);
      resetForm();
    };
  
@@ -485,58 +542,56 @@ export default function TilawahUjian() {
                   <TableHead>Kelas</TableHead>
                   <TableHead>Jilid Dari</TableHead>
                   <TableHead>Naik ke</TableHead>
-                  <TableHead className="text-center w-24">Nilai Total</TableHead>
+                  <TableHead className="text-center w-24">Nilai</TableHead>
                   <TableHead className="text-center w-28">Status</TableHead>
+                  <TableHead className="text-center w-28">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
 
               <TableBody>
-                {mockUjianData.length === 0 ? (
+                {ujianData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                       Belum ada data ujian tilawah
                     </TableCell>
                   </TableRow>
                 ) : (
-                  mockUjianData.map((item, index) => {
-                    const isLulus = item.status?.toLowerCase() === "lulus";
+                  ujianData.map((item, index) => {
+                    const isLulus = item.status?.toLowerCase().includes("lulus");
+                    const isMengulang = item.status === "Mengulang";
 
                     return (
                       <TableRow key={item.id}>
-                        <TableCell className="text-center w-12">
-                          {index + 1}
-                        </TableCell>
-
+                        <TableCell className="text-center w-12">{index + 1}</TableCell>
                         <TableCell className="font-medium">
                           {item.nama}
+                          {item.isRemedial && (
+                            <Badge variant="outline" className="ml-2 text-xs">Remedial {item.remedialKe}</Badge>
+                          )}
                         </TableCell>
-
-                        <TableCell>
-                          {item.kelas}
-                        </TableCell>
-
-                        <TableCell>
-                          Jilid {item.jilidDari}
-                        </TableCell>
-
-                        <TableCell>
-                          {item.jilidTujuan <= 6 ? `Jilid ${item.jilidTujuan}` : "Al-Qur'an"}
-                        </TableCell>
-
+                        <TableCell>{item.kelas}</TableCell>
+                        <TableCell>Jilid {item.jilidDari}</TableCell>
+                        <TableCell>{item.jilidTujuan <= 6 ? `Jilid ${item.jilidTujuan}` : "Al-Qur'an"}</TableCell>
                         <TableCell className="text-center font-semibold w-24">
-                          {item.nilaiTotal}
+                          {item.nilaiTotal}/{item.skorMaksimal}
                         </TableCell>
-
                         <TableCell className="text-center w-28">
-                          <Badge
-                            className={
-                              isLulus
-                                ? "bg-green-600 text-white"
-                                : "bg-red-600 text-white"
-                            }
-                          >
+                          <Badge className={isLulus ? "bg-green-600 text-white" : "bg-red-600 text-white"}>
                             {item.status}
                           </Badge>
+                        </TableCell>
+                        <TableCell className="text-center w-28">
+                          {isMengulang && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-xs"
+                              onClick={() => handleOpenRemedial(item)}
+                            >
+                              <RefreshCw className="w-3 h-3 mr-1" />
+                              Remedial
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     );
@@ -546,6 +601,124 @@ export default function TilawahUjian() {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Remedial Dialog */}
+        <Dialog open={remedialDialogOpen} onOpenChange={setRemedialDialogOpen}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <RefreshCw className="w-5 h-5" />
+                Remedial Ujian Kenaikan Jilid
+                {remedialTarget && (
+                  <Badge variant="outline" className="ml-2">
+                    {remedialTarget.nama} - Jilid {remedialTarget.jilidDari} → {remedialTarget.jilidTujuan}
+                  </Badge>
+                )}
+              </DialogTitle>
+            </DialogHeader>
+            
+            {remedialTarget && (
+              <div className="space-y-4 pt-4">
+                <Card className="bg-destructive/5 border-destructive/20">
+                  <CardContent className="pt-4">
+                    <div className="text-sm space-y-1">
+                      <p><strong>Santri:</strong> {remedialTarget.nama}</p>
+                      <p><strong>Nilai sebelumnya:</strong> {remedialTarget.nilaiTotal}/{remedialTarget.skorMaksimal} (Mengulang)</p>
+                      <p><strong>Remedial ke:</strong> {(remedialTarget.remedialKe || 0) + 1}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Same scoring tabs as main form */}
+                <Tabs defaultValue="tartil" className="w-full">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="tartil">Tartil</TabsTrigger>
+                    <TabsTrigger value="fashohah">Fashohah</TabsTrigger>
+                    <TabsTrigger value="tajwid" disabled={!getAspekPenilaianByJilid(remedialTarget.jilidDari).includes("tajwid_dasar")}>Tajwid</TabsTrigger>
+                    <TabsTrigger value="ghorib" disabled={!getAspekPenilaianByJilid(remedialTarget.jilidDari).includes("ghorib")}>Ghorib</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="tartil" className="mt-4">
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm">Penilaian Tartil <Badge variant="outline">Maks: 10</Badge></CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2"><Label className="text-xs">Kesempurnaan Tajwid (0-2)</Label><Input type="number" min={0} max={2} step={0.5} value={tartilTajwid} onChange={e => setTartilTajwid(e.target.value)} /></div>
+                          <div className="space-y-2"><Label className="text-xs">Kesempurnaan Kalimat (0-2)</Label><Input type="number" min={0} max={2} step={0.5} value={tartilKalimat} onChange={e => setTartilKalimat(e.target.value)} /></div>
+                          <div className="space-y-2"><Label className="text-xs">Kelancaran (0-4)</Label><Input type="number" min={0} max={4} step={0.5} value={tartilKelancaran} onChange={e => setTartilKelancaran(e.target.value)} /></div>
+                          <div className="space-y-2"><Label className="text-xs">Nafas (0-1)</Label><Input type="number" min={0} max={1} step={0.5} value={tartilNafas} onChange={e => setTartilNafas(e.target.value)} /></div>
+                          <div className="space-y-2 col-span-2"><Label className="text-xs">Waqaf (0-1)</Label><Input type="number" min={0} max={1} step={0.5} value={tartilWaqaf} onChange={e => setTartilWaqaf(e.target.value)} /></div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="fashohah" className="mt-4">
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm">Penilaian Fashohah <Badge variant="outline">Maks: 10</Badge></CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2"><Label className="text-xs">Makhorijul Huruf (0-4)</Label><Input type="number" min={0} max={4} step={0.5} value={fashohahMakhraj} onChange={e => setFashohahMakhraj(e.target.value)} /></div>
+                          <div className="space-y-2"><Label className="text-xs">Shifatul Huruf (0-3)</Label><Input type="number" min={0} max={3} step={0.5} value={fashohahShifat} onChange={e => setFashohahShifat(e.target.value)} /></div>
+                          <div className="space-y-2"><Label className="text-xs">Harakat Tidak Imalah (0-2)</Label><Input type="number" min={0} max={2} step={0.5} value={fashohahHarakat} onChange={e => setFashohahHarakat(e.target.value)} /></div>
+                          <div className="space-y-2"><Label className="text-xs">Suara Jelas (0-1)</Label><Input type="number" min={0} max={1} step={0.5} value={fashohahSuara} onChange={e => setFashohahSuara(e.target.value)} /></div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="tajwid" className="mt-4">
+                    <Card>
+                      <CardHeader className="pb-3"><CardTitle className="text-sm">Penilaian Tajwid <Badge variant="outline">Maks: 10</Badge></CardTitle></CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2"><Label className="text-xs">Paham Hukum Tajwid (0-5)</Label><Input type="number" min={0} max={5} step={0.5} value={tajwidPaham} onChange={e => setTajwidPaham(e.target.value)} /></div>
+                          <div className="space-y-2"><Label className="text-xs">Mampu Menguraikan (0-5)</Label><Input type="number" min={0} max={5} step={0.5} value={tajwidUraian} onChange={e => setTajwidUraian(e.target.value)} /></div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  <TabsContent value="ghorib" className="mt-4">
+                    <Card>
+                      <CardHeader className="pb-3"><CardTitle className="text-sm">Penilaian Ghorib <Badge variant="outline">Maks: 10</Badge></CardTitle></CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2"><Label className="text-xs">Membaca Ghorib (0-6)</Label><Input type="number" min={0} max={6} step={0.5} value={ghoribBaca} onChange={e => setGhoribBaca(e.target.value)} /></div>
+                          <div className="space-y-2"><Label className="text-xs">Komentar Ghorib (0-4)</Label><Input type="number" min={0} max={4} step={0.5} value={ghoribKomentar} onChange={e => setGhoribKomentar(e.target.value)} /></div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
+
+                {/* Total */}
+                <Card className="bg-primary/5 border-primary/20">
+                  <CardContent className="pt-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Total Nilai Remedial</p>
+                        <p className="text-3xl font-bold">{hitungTotalNilai()} <span className="text-lg font-normal text-muted-foreground">/ {getSkorMaksimal()}</span></p>
+                      </div>
+                      <Badge className={`text-lg px-4 py-2 ${hitungTotalNilai() >= getNilaiMinimum() ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}>
+                        {hitungTotalNilai() >= getNilaiMinimum() ? "LULUS" : "MENGULANG"}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setRemedialDialogOpen(false)}>Batal</Button>
+                  <Button onClick={handleSubmitRemedial}>Simpan Hasil Remedial</Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
