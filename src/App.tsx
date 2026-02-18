@@ -30,6 +30,8 @@ import AkademikDashboard from "./pages/AkademikDashboard";
 import AkademikImpor from "./pages/AkademikImpor";
 import AkademikRapor from "./pages/AkademikRapor";
 import AkademikRaporDiniyah from "./pages/AkademikRaporDiniyah";
+import TilawahUjianSemester from "./pages/TilawahUjianSemester";
+import DetailSantri from "./pages/DetailSantri";
 // Profil & Pengaturan
 import Profil from "./pages/Profil";
 import Pengaturan from "./pages/Pengaturan";
@@ -53,6 +55,7 @@ const App = () => (
             <Route path="/ujian-tahfidz" element={<UjianTahfidz />} />
             <Route path="/rapor" element={<RaporSemester />} />
             <Route path="/santri" element={<DataSantri />} />
+            <Route path="/santri/:id" element={<DetailSantri />} />
             <Route path="/halaqoh" element={<DataHalaqoh />} />
             <Route path="/kelas" element={<DataKelas />} />
             <Route path="/ustadz" element={<DataUstadz />} />
@@ -63,6 +66,7 @@ const App = () => (
             <Route path="/tilawah/absensi" element={<TilawahAbsensi />} />
             <Route path="/tilawah/laporan" element={<TilawahLaporan />} />
             <Route path="/tilawah/ujian" element={<TilawahUjian />} />
+            <Route path="/tilawah/ujian-semester" element={<TilawahUjianSemester />} />
             <Route path="/tilawah/rapor" element={<TilawahRapor />} />
             {/* Akademik Routes */}
             <Route path="/akademik/dashboard" element={<AkademikDashboard />} />

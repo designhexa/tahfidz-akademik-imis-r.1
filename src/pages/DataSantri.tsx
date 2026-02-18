@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye } from "lucide-react";
 import {
   MOCK_SANTRI,
   MOCK_HALAQOH,
@@ -29,6 +30,7 @@ import {
 } from "@/lib/mock-data";
 
 export default function DataSantri() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filterHalaqoh, setFilterHalaqoh] = useState("all");
   const [filterKelas, setFilterKelas] = useState("all");
@@ -98,28 +100,35 @@ export default function DataSantri() {
                 <TableHead className="text-muted-foreground">Nama Santri</TableHead>
                 <TableHead className="text-muted-foreground">Halaqoh</TableHead>
                 <TableHead className="text-muted-foreground">Kelas</TableHead>
+                <TableHead className="text-muted-foreground">Placement</TableHead>
                 <TableHead className="text-muted-foreground">Wali Santri</TableHead>
-                <TableHead className="text-muted-foreground">Tanggal Masuk</TableHead>
                 <TableHead className="text-muted-foreground">Status</TableHead>
                 <TableHead className="text-muted-foreground">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredSantri.map((santri) => (
-                <TableRow key={santri.id}>
+                <TableRow key={santri.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/santri/${santri.id}`)}>
                   <TableCell className="font-medium">{santri.nis}</TableCell>
                   <TableCell className="text-primary font-medium">{santri.nama}</TableCell>
                   <TableCell className="text-primary">{getHalaqohNama(santri.idHalaqoh)}</TableCell>
                   <TableCell>{getKelasNama(santri.idKelas)}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="text-xs">
+                      Jilid {santri.jilidSaatIni > 1 ? santri.jilidSaatIni - 1 : 1}
+                    </Badge>
+                  </TableCell>
                   <TableCell>{getWaliNama(santri.idWali)}</TableCell>
-                  <TableCell>{santri.tanggalMasuk}</TableCell>
                   <TableCell>
                     <Badge variant="default" className="bg-primary/10 text-primary hover:bg-primary/20">
                       {santri.status}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => navigate(`/santri/${santri.id}`)}>
+                        <Eye className="w-4 h-4" />
+                      </Button>
                       <Button variant="outline" size="icon" className="h-8 w-8">
                         <Pencil className="w-4 h-4" />
                       </Button>
