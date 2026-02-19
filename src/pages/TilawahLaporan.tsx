@@ -12,6 +12,7 @@
    HALAMAN_PER_JILID,
    getProgressJilid
  } from "@/lib/tilawah-data";
+ import { MOCK_KELAS } from "@/lib/mock-data";
 
 export default function TilawahLaporan() {
   const [filterHalaqoh, setFilterHalaqoh] = useState("all");
@@ -86,13 +87,11 @@ export default function TilawahLaporan() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Semua Kelas</SelectItem>
-                   <SelectItem value="3A">3A</SelectItem>
-                   <SelectItem value="3B">3B</SelectItem>
-                   <SelectItem value="4A">4A</SelectItem>
-                   <SelectItem value="4B">4B</SelectItem>
-                   <SelectItem value="5A">5A</SelectItem>
-                   <SelectItem value="5B">5B</SelectItem>
-                   <SelectItem value="6A">6A</SelectItem>
+                  {MOCK_KELAS.map((k) => (
+                    <SelectItem key={k.id} value={k.id}>
+                      {k.nama_kelas}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
                <Select value={filterJilid} onValueChange={setFilterJilid}>

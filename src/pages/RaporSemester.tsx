@@ -20,6 +20,7 @@ import {
 import { RaporTahfidzPreview } from "@/components/rapor/RaporTahfidzPreview";
 import { getMockRaporData, RaporTahfidz, getPredikat } from "@/lib/rapor-tahfidz-types";
 import { mockSantriProgress } from "@/lib/target-hafalan";
+import { MOCK_KELAS } from "@/lib/mock-data";
 import html2canvas from "html2canvas";
 import { useToast } from "@/hooks/use-toast";
 
@@ -155,11 +156,13 @@ const RaporSemester = () => {
                   <SelectValue placeholder="Pilih Kelas" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Semua Kelas</SelectItem>
-                  {uniqueKelas.map(kelas => (
-                    <SelectItem key={kelas} value={kelas}>{kelas}</SelectItem>
-                  ))}
-                </SelectContent>
+                 <SelectItem value="all">Semua Kelas</SelectItem>
+                 {MOCK_KELAS.map((k) => (
+                   <SelectItem key={k.id} value={k.id}>
+                     {k.nama_kelas}
+                   </SelectItem>
+                 ))}
+               </SelectContent>
               </Select>
               <Select value={filterHalaqoh} onValueChange={setFilterHalaqoh}>
                 <SelectTrigger className="w-full sm:w-48">

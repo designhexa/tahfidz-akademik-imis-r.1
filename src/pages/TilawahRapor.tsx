@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { FileSpreadsheet, Download } from "lucide-react";
 import { useState } from "react";
+import { MOCK_KELAS } from "@/lib/mock-data";
 
 export default function TilawahRapor() {
   const [filterHalaqoh, setFilterHalaqoh] = useState("all");
@@ -54,6 +55,11 @@ export default function TilawahRapor() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Semua Kelas</SelectItem>
+                  {MOCK_KELAS.map((k) => (
+                    <SelectItem key={k.id} value={k.id}>
+                      {k.nama_kelas}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

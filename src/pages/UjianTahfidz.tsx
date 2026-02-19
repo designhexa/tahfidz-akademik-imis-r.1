@@ -39,6 +39,7 @@ import { JuzSelector } from "@/components/JuzSelector";
 import { supabase } from "@/integrations/supabase/client";
 import { generateExamQuestions, formatQuestionDisplay, ExamQuestion } from "@/lib/quran-exam-generator";
 import { toast } from "sonner";
+import { MOCK_KELAS } from "@/lib/mock-data";
 
 interface Halaqoh {
   id: string;
@@ -262,8 +263,8 @@ const UjianTahfidz = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Semua Kelas</SelectItem>
-                        {kelasList.map((k) => (
-                          <SelectItem key={k.id} value={k.nama_kelas}>
+                        {MOCK_KELAS.map((k) => (
+                          <SelectItem key={k.id} value={k.id}>
                             {k.nama_kelas}
                           </SelectItem>
                         ))}

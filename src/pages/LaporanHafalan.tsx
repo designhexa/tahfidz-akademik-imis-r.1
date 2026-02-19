@@ -10,6 +10,7 @@ import { Download, FileText, TrendingUp, BookOpen, Calendar, BarChart3, Target, 
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { LaporanCharts, CapaianKelasChart, CapaianHalaqohChart, CapaianSiswaChart } from "@/components/laporan/LaporanCharts";
+import { MOCK_KELAS } from "@/lib/mock-data";
 
 // Mock data
 const mockLaporanHarian = [
@@ -236,10 +237,11 @@ const LaporanHafalan = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Semua Kelas</SelectItem>
-                    <SelectItem value="KBTK A">KBTK A</SelectItem>
-                    <SelectItem value="KBTK B">KBTK B</SelectItem>
-                    <SelectItem value="Paket A Kelas 6">Paket A Kelas 6</SelectItem>
-                    <SelectItem value="Paket B Kelas 8">Paket B Kelas 8</SelectItem>
+                    {MOCK_KELAS.map((k) => (
+                      <SelectItem key={k.id} value={k.id}>
+                        {k.nama_kelas}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

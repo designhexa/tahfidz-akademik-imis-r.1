@@ -157,8 +157,8 @@ export default function AkademikRapor() {
                     <SelectItem key={k.id} value={k.id}>
                       {k.nama_kelas}
                     </SelectItem>
-                    ))}
-                  </SelectContent>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
           </CardContent>

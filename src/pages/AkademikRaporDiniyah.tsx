@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Search, FileText, Download, Printer, Eye } from "lucide-react";
 import { useState, useRef } from "react";
 import { mockSantriAkademik } from "@/lib/rapor-akademik-types";
+import { MOCK_KELAS } from "@/lib/mock-data";
 import { RaporDiniyahPreview } from "@/components/rapor/RaporDiniyahPreview";
 import html2canvas from "html2canvas";
 import { toast } from "sonner";
@@ -92,9 +93,11 @@ export default function AkademikRaporDiniyah() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Semua Kelas</SelectItem>
-                  <SelectItem value="7">Kelas 7</SelectItem>
-                  <SelectItem value="8">Kelas 8</SelectItem>
-                  <SelectItem value="9">Kelas 9</SelectItem>
+                    {MOCK_KELAS.map((k) => (
+                    <SelectItem key={k.id} value={k.id}>
+                      {k.nama_kelas}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <Select value={filterSemester} onValueChange={setFilterSemester}>
