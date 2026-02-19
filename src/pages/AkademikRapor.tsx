@@ -20,6 +20,7 @@ import { RaporAkademikPreview } from "@/components/rapor/RaporAkademikPreview";
 import { mockSantriAkademik, mockRaporAkademik, RaporAkademik } from "@/lib/rapor-akademik-types";
 import html2canvas from "html2canvas";
 import { useToast } from "@/hooks/use-toast";
+import { MOCK_KELAS } from "@/lib/mock-data";
 
 export default function AkademikRapor() {
   const [filterKelas, setFilterKelas] = useState("all");
@@ -152,10 +153,12 @@ export default function AkademikRapor() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Semua Kelas</SelectItem>
-                  {uniqueKelas.map(kelas => (
-                    <SelectItem key={kelas} value={kelas}>{kelas}</SelectItem>
-                  ))}
-                </SelectContent>
+                    {MOCK_KELAS.map((k) => (
+                    <SelectItem key={k.id} value={k.id}>
+                      {k.nama_kelas}
+                    </SelectItem>
+                    ))}
+                  </SelectContent>
               </Select>
             </div>
           </CardContent>
