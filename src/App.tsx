@@ -24,7 +24,7 @@ import TilawahDashboard from "./pages/TilawahDashboard";
 import TilawahAbsensi from "./pages/TilawahAbsensi";
 import TilawahLaporan from "./pages/TilawahLaporan";
 import TilawahUjian from "./pages/TilawahUjian";
-import TilawahRapor from "./pages/TilawahRapor";
+
 // Akademik pages
 import AkademikDashboard from "./pages/AkademikDashboard";
 import AkademikImpor from "./pages/AkademikImpor";
@@ -67,7 +67,7 @@ const App = () => (
             <Route path="/tilawah/laporan" element={<TilawahLaporan />} />
             <Route path="/tilawah/ujian" element={<TilawahUjian />} />
             <Route path="/tilawah/ujian-semester" element={<TilawahUjianSemester />} />
-            <Route path="/tilawah/rapor" element={<TilawahRapor />} />
+            
             {/* Akademik Routes */}
             <Route path="/akademik/dashboard" element={<AkademikDashboard />} />
             <Route path="/akademik/impor" element={<AkademikImpor />} />

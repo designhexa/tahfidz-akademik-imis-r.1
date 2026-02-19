@@ -51,7 +51,6 @@ const tilawahItems = [
   { title: "Laporan Tilawah", url: "/tilawah/laporan", icon: FileText },
   { title: "Ujian Kenaikan Jilid", url: "/tilawah/ujian", icon: Award },
   { title: "Ujian Tilawah Semester", url: "/tilawah/ujian-semester", icon: ClipboardCheck },
-  { title: "Rapor Tilawah", url: "/tilawah/rapor", icon: FileSpreadsheet },
 ];
 
 const raporAkademikItems = [
