@@ -194,7 +194,7 @@ const UjianTahfidz = () => {
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
               <GraduationCap className="w-7 h-7 text-purple-500" />
-              Ujian Tahfidz
+              Ujian Tahfidz Semester
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
               Ujian tahfidz Al-Qur'an dengan 10 soal sambung ayat acak

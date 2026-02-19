@@ -41,7 +41,7 @@ const tahfidzItems = [
   { title: "Setoran Hafalan", url: "/setoran", icon: BookOpen },
   { title: "Laporan Hafalan", url: "/laporan", icon: FileText },
   { title: "Ujian Tasmi'", url: "/ujian-tasmi", icon: Award },
-  { title: "Ujian Tahfidz", url: "/ujian-tahfidz", icon: GraduationCap },
+  { title: "Ujian Tahfidz Semester", url: "/ujian-tahfidz", icon: GraduationCap },
   { title: "Rapor Tahfidz", url: "/rapor", icon: FileSpreadsheet },
 ];
 
