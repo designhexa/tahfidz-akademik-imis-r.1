@@ -24,6 +24,9 @@ const moreNavItems = [
   { title: "Ujian Tahfidz", url: "/ujian-tahfidz" },
   { title: "Rapor Tahfidz", url: "/rapor" },
   { title: "Tilawah", url: "/tilawah/dashboard" },
+  { title: "Setoran Tilawah", url: "/tilawah/absensi" },
+  { title: "Ujian Naik Jilid", url: "/tilawah/ujian" },
+  { title: "Ujian Tilawah", url: "/ujian-semester" },
   { title: "Pengaturan", url: "/pengaturan" },
 ];
 
