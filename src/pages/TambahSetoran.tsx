@@ -157,7 +157,7 @@ const TambahSetoran = () => {
       case "setoran_baru": return "Setoran Baru";
       case "murojaah": return "Murojaah";
       case "tilawah": return "Tilawah";
-      case "tilawah_rumah": return "Tilawah di Rumah";
+      case "tilawah_rumah": return "Murojaah di Rumah";
       default: return tab;
     }
   };

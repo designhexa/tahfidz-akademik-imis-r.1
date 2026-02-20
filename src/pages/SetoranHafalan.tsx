@@ -60,7 +60,7 @@ const jenisSetoranOptions = [
   { value: "setoran_baru", label: "Setoran Baru", icon: BookOpen, description: "Hafalan ayat/halaman baru" },
   { value: "murojaah", label: "Murojaah", icon: RefreshCw, description: "Mengulang hafalan lama" },
   { value: "tilawah", label: "Tilawah", icon: BookMarked, description: "Membaca Al-Quran di kelas" },
-  { value: "tilawah_rumah", label: "Tilawah di Rumah", icon: Home, description: "Membaca Al-Quran di rumah" },
+  { value: "tilawah_rumah", label: "Murojaah di Rumah", icon: Home, description: "Membaca Al-Quran di rumah" },
   { value: "drill", label: "Drill", icon: Target, description: "Latihan hafalan intensif" },
 ];
 
