@@ -1,8 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard,
   BookOpen,
-  UserCheck,
   FileText,
   ClipboardCheck,
   Users,
@@ -18,6 +16,8 @@ import {
   BookOpenCheck,
   Import,
   User,
+  Target,
+  PenTool,
 } from "lucide-react";
 import {
   Sidebar,
@@ -36,31 +36,47 @@ import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
-const tahfidzItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Setoran Hafalan", url: "/setoran", icon: BookOpen },
-  { title: "Laporan Hafalan", url: "/laporan", icon: FileText },
-  { title: "Ujian Tasmi'", url: "/ujian-tasmi", icon: Award },
-  { title: "Ujian Tahfidz Semester", url: "/ujian-tahfidz", icon: GraduationCap },
+type MenuItem = {
+  title: string;
+  url?: string;
+  icon: any;
+  children?: MenuItem[];
+};
+
+const setoranItems: MenuItem[] = [
+  { title: "Setoran Harian", url: "/setoran", icon: BookOpen },
+  { title: "Drill Hafalan", url: "/setoran?tab=drill", icon: Target },
+  { title: "Laporan", url: "/laporan", icon: FileText },
+];
+
+const penilaianItems: MenuItem[] = [
+  {
+    title: "Ujian Tahfidz",
+    icon: Award,
+    children: [
+      { title: "Ujian Tasmi' 1 Juz & 5 Juz", url: "/ujian-tasmi", icon: Award },
+      { title: "Ujian Tahfidz Semester", url: "/ujian-tahfidz", icon: GraduationCap },
+    ],
+  },
+  {
+    title: "Ujian Tilawah",
+    icon: BookOpenCheck,
+    children: [
+      { title: "Ujian Kenaikan Jilid", url: "/tilawah/ujian", icon: Award },
+      { title: "Ujian Tilawah Semester", url: "/tilawah/ujian-semester", icon: ClipboardCheck },
+    ],
+  },
   { title: "Rapor Tahfidz", url: "/rapor", icon: FileSpreadsheet },
 ];
 
-const tilawahItems = [
-  { title: "Dashboard", url: "/tilawah/dashboard", icon: LayoutDashboard },
-  { title: "Setoran Tilawah", url: "/tilawah/absensi", icon: BookOpenCheck },
-  { title: "Laporan Tilawah", url: "/tilawah/laporan", icon: FileText },
-  { title: "Ujian Kenaikan Jilid", url: "/tilawah/ujian", icon: Award },
-  { title: "Ujian Tilawah Semester", url: "/tilawah/ujian-semester", icon: ClipboardCheck },
-];
-
-const raporAkademikItems = [
-  { title: "Dashboard", url: "/akademik/dashboard", icon: LayoutDashboard },
+const akademikItems: MenuItem[] = [
+  { title: "Dashboard", url: "/akademik/dashboard", icon: GraduationCap },
   { title: "Impor Data Nilai", url: "/akademik/impor", icon: Import },
   { title: "Rapor Akademik", url: "/akademik/rapor", icon: FileSpreadsheet },
   { title: "Rapor Diniyah", url: "/akademik/rapor-diniyah", icon: BookMarked },
 ];
 
-const masterDataItems = [
+const masterDataItems: MenuItem[] = [
   { title: "Data Santri", url: "/santri", icon: Users },
   { title: "Data Halaqoh", url: "/halaqoh", icon: BookMarked },
   { title: "Data Kelas", url: "/kelas", icon: School },
@@ -68,6 +84,95 @@ const masterDataItems = [
   { title: "Akun Pengguna", url: "/users", icon: UserCog },
   { title: "Pengumuman", url: "/pengumuman", icon: Megaphone },
 ];
+
+function isItemActive(item: MenuItem, pathname: string): boolean {
+  if (item.url && pathname === item.url.split("?")[0]) return true;
+  if (item.children) return item.children.some((c) => isItemActive(c, pathname));
+  return false;
+}
+
+function SidebarNestedMenu({
+  label,
+  icon: Icon,
+  items,
+}: {
+  label: string;
+  icon: any;
+  items: MenuItem[];
+}) {
+  const location = useLocation();
+  const [open, setOpen] = useState(
+    items.some((i) => isItemActive(i, location.pathname))
+  );
+
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton onClick={() => setOpen(!open)}>
+          <Icon className="w-4 h-4" />
+          <span className="flex-1">{label}</span>
+          <ChevronDown
+            className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`}
+          />
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+
+      {open &&
+        items.map((item) =>
+          item.children ? (
+            <SidebarSubDropdown key={item.title} item={item} />
+          ) : (
+            <SidebarMenuItem key={item.url} className="ml-6">
+              <SidebarMenuButton
+                asChild
+                isActive={location.pathname === item.url?.split("?")[0]}
+              >
+                <NavLink to={item.url!}>
+                  <item.icon className="w-4 h-4" />
+                  <span>{item.title}</span>
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )
+        )}
+    </SidebarMenu>
+  );
+}
+
+function SidebarSubDropdown({ item }: { item: MenuItem }) {
+  const location = useLocation();
+  const [open, setOpen] = useState(
+    item.children?.some((c) => isItemActive(c, location.pathname)) ?? false
+  );
+
+  return (
+    <>
+      <SidebarMenuItem className="ml-6">
+        <SidebarMenuButton onClick={() => setOpen(!open)}>
+          <item.icon className="w-4 h-4" />
+          <span className="flex-1">{item.title}</span>
+          <ChevronDown
+            className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`}
+          />
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      {open &&
+        item.children?.map((child) => (
+          <SidebarMenuItem key={child.url} className="ml-12">
+            <SidebarMenuButton
+              asChild
+              isActive={location.pathname === child.url?.split("?")[0]}
+            >
+              <NavLink to={child.url!}>
+                <child.icon className="w-4 h-4" />
+                <span>{child.title}</span>
+              </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ))}
+    </>
+  );
+}
 
 export function AppSidebar() {
   const { open } = useSidebar();
@@ -85,54 +190,6 @@ export function AppSidebar() {
       navigate("/auth");
     }
   };
-
-    const SidebarDropdown = ({
-      label,
-      icon: Icon,
-      items,
-    }: {
-      label: string;
-      icon: any;
-      items: any[];
-    }) => {
-      const location = useLocation();
-      const [open, setOpen] = useState(
-        items.some((i) => location.pathname.startsWith(i.url))
-      );
-
-      return (
-        <SidebarMenu>
-          {/* Parent */}
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={() => setOpen(!open)}>
-              <Icon className="w-4 h-4" />
-              <span className="flex-1">{label}</span>
-              <ChevronDown
-                className={`w-4 h-4 transition-transform ${
-                  open ? "rotate-180" : ""
-                }`}
-              />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          {/* Children */}
-          {open &&
-            items.map((item) => (
-              <SidebarMenuItem key={item.url} className="ml-6">
-                <SidebarMenuButton
-                  asChild
-                  isActive={location.pathname === item.url}
-                >
-                  <NavLink to={item.url}>
-                    <item.icon className="w-4 h-4" />
-                    <span>{item.title}</span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-        </SidebarMenu>
-      );
-    };
 
   return (
     <Sidebar className="border-r border-border bg-card">
@@ -152,47 +209,31 @@ export function AppSidebar() {
           </div>
         </div>
 
-        {/* Tahfidz Menu */}
+        {/* Setoran */}
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarDropdown
-              label="Tahfidz"
-              icon={BookOpen}
-              items={tahfidzItems}
-            />
+            <SidebarNestedMenu label="Setoran" icon={BookOpen} items={setoranItems} />
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Tilawah Menu */}
+        {/* Penilaian */}
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarDropdown
-              label="Tilawah"
-              icon={BookOpenCheck}
-              items={tilawahItems}
-            />
+            <SidebarNestedMenu label="Penilaian" icon={PenTool} items={penilaianItems} />
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Rapor Akademik Menu */}
+        {/* Akademik */}
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarDropdown
-              label="Akademik"
-              icon={GraduationCap}
-              items={raporAkademikItems}
-            />
+            <SidebarNestedMenu label="Akademik" icon={GraduationCap} items={akademikItems} />
           </SidebarGroupContent>
         </SidebarGroup>
 
         {/* Master Data */}
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarDropdown
-              label="Master Data"
-              icon={Users}
-              items={masterDataItems}
-            />
+            <SidebarNestedMenu label="Master Data" icon={Users} items={masterDataItems} />
           </SidebarGroupContent>
         </SidebarGroup>
 

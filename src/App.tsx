@@ -22,7 +22,7 @@ import NotFound from "./pages/NotFound";
 // Tilawah pages
 import TilawahDashboard from "./pages/TilawahDashboard";
 import TilawahAbsensi from "./pages/TilawahAbsensi";
-import TilawahLaporan from "./pages/TilawahLaporan";
+// TilawahLaporan is now integrated into LaporanHafalan
 import TilawahUjian from "./pages/TilawahUjian";
 
 // Akademik pages
@@ -64,7 +64,7 @@ const App = () => (
             {/* Tilawah Routes */}
             <Route path="/tilawah/dashboard" element={<TilawahDashboard />} />
             <Route path="/tilawah/absensi" element={<TilawahAbsensi />} />
-            <Route path="/tilawah/laporan" element={<TilawahLaporan />} />
+            {/* Tilawah Laporan now integrated into /laporan */}
             <Route path="/tilawah/ujian" element={<TilawahUjian />} />
             <Route path="/tilawah/ujian-semester" element={<TilawahUjianSemester />} />
             

@@ -20,13 +20,12 @@ const mainNavItems = [
 
 // Menu tambahan di sheet "More"
 const moreNavItems = [
+  { title: "Drill Hafalan", url: "/setoran?tab=drill" },
   { title: "Ujian Tasmi'", url: "/ujian-tasmi" },
   { title: "Ujian Tahfidz", url: "/ujian-tahfidz" },
-  { title: "Rapor Tahfidz", url: "/rapor" },
-  { title: "Tilawah", url: "/tilawah/dashboard" },
-  { title: "Setoran Tilawah", url: "/tilawah/absensi" },
   { title: "Ujian Naik Jilid", url: "/tilawah/ujian" },
-  { title: "Ujian Tilawah", url: "/ujian-semester" },
+  { title: "Ujian Tilawah", url: "/tilawah/ujian-semester" },
+  { title: "Rapor Tahfidz", url: "/rapor" },
   { title: "Pengaturan", url: "/pengaturan" },
 ];
 

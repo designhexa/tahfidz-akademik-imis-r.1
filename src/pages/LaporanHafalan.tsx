@@ -6,11 +6,18 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, FileText, TrendingUp, BookOpen, Calendar, BarChart3, Target, Users, School } from "lucide-react";
+import { Download, FileText, TrendingUp, BookOpen, Calendar, BarChart3, Target, Users, School, BookOpenCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { LaporanCharts, CapaianKelasChart, CapaianHalaqohChart, CapaianSiswaChart } from "@/components/laporan/LaporanCharts";
 import { MOCK_KELAS } from "@/lib/mock-data";
+import { 
+  MOCK_SANTRI_TILAWAH, 
+  MOCK_SETORAN_TILAWAH,
+  TILAWATI_JILID,
+  HALAMAN_PER_JILID,
+  getProgressJilid
+} from "@/lib/tilawah-data";
 
 // Mock data
 const mockLaporanHarian = [
@@ -76,11 +83,34 @@ const mockSantri = [
 ];
 
 const LaporanHafalan = () => {
+  const [activeTab, setActiveTab] = useState("hafalan");
   const [filterPeriode, setFilterPeriode] = useState("bulanan");
   const [filterHalaqoh, setFilterHalaqoh] = useState("all");
   const [filterBulan, setFilterBulan] = useState("januari");
   const [filterSantri, setFilterSantri] = useState("all");
   const [filterKelas, setFilterKelas] = useState("all");
+  // Tilawah filters
+  const [tilawahHalaqoh, setTilawahHalaqoh] = useState("all");
+  const [tilawahKelas, setTilawahKelas] = useState("all");
+  const [tilawahJilid, setTilawahJilid] = useState("all");
+
+  // Tilawah stats
+  const santriTilawahStats = MOCK_SANTRI_TILAWAH.map(santri => {
+    const setoranSantri = MOCK_SETORAN_TILAWAH.filter(s => s.idSantri === santri.id);
+    const totalHalaman = setoranSantri.reduce((acc, s) => acc + (s.halamanSampai - s.halamanDari + 1), 0);
+    const rataRataNilai = setoranSantri.length > 0
+      ? Math.round(setoranSantri.reduce((acc, s) => acc + (s.nilaiRataRata || 0), 0) / setoranSantri.length)
+      : 0;
+    const progressJilid = getProgressJilid(santri.halamanSaatIni, santri.jilidSaatIni);
+    return { ...santri, jumlahSetoran: setoranSantri.length, totalHalaman, rataRataNilai, progressJilid: Math.round(progressJilid) };
+  });
+
+  const filteredTilawahSantri = santriTilawahStats.filter(santri => {
+    const matchHalaqoh = tilawahHalaqoh === "all" || santri.halaqoh === tilawahHalaqoh;
+    const matchKelas = tilawahKelas === "all" || santri.kelas === tilawahKelas;
+    const matchJilid = tilawahJilid === "all" || santri.jilidSaatIni === parseInt(tilawahJilid);
+    return matchHalaqoh && matchKelas && matchJilid;
+  });
 
   const filteredSantri = filterHalaqoh === "all" 
     ? mockSantri 
@@ -112,8 +142,8 @@ const LaporanHafalan = () => {
         {/* Header */}
         <div className="flex flex-col gap-3">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Laporan Hafalan</h1>
-            <p className="text-sm md:text-base text-muted-foreground">Rekap dan analisis capaian hafalan santri</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Laporan</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Rekap dan analisis capaian hafalan & tilawah santri</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" className="flex-1 md:flex-none" onClick={handleExportExcel}>
@@ -128,6 +158,21 @@ const LaporanHafalan = () => {
             </Button>
           </div>
         </div>
+
+        {/* Top-level Hafalan / Tilawah tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="hafalan" className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4" />
+              Hafalan
+            </TabsTrigger>
+            <TabsTrigger value="tilawah" className="flex items-center gap-2">
+              <BookOpenCheck className="w-4 h-4" />
+              Tilawah
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="hafalan" className="space-y-4 md:space-y-6 mt-4">
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
@@ -451,6 +496,119 @@ const LaporanHafalan = () => {
                     </TableBody>
                   </Table>
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+          </TabsContent>
+
+          {/* Tilawah Tab */}
+          <TabsContent value="tilawah" className="space-y-4 md:space-y-6 mt-4">
+            {/* Tilawah Filters */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Filter Laporan Tilawah</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <Select value={tilawahHalaqoh} onValueChange={setTilawahHalaqoh}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih Halaqoh" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Semua Halaqoh</SelectItem>
+                      <SelectItem value="Halaqoh 1">Halaqoh 1</SelectItem>
+                      <SelectItem value="Halaqoh 2">Halaqoh 2</SelectItem>
+                      <SelectItem value="Halaqoh 3">Halaqoh 3</SelectItem>
+                      <SelectItem value="Halaqoh 4">Halaqoh 4</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={tilawahKelas} onValueChange={setTilawahKelas}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih Kelas" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Semua Kelas</SelectItem>
+                      {MOCK_KELAS.map((k) => (
+                        <SelectItem key={k.id} value={k.id}>
+                          {k.nama_kelas}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={tilawahJilid} onValueChange={setTilawahJilid}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih Jilid" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Semua Jilid</SelectItem>
+                      {TILAWATI_JILID.map((jilid) => (
+                        <SelectItem key={jilid.jilid} value={jilid.jilid.toString()}>
+                          Jilid {jilid.jilid}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Tilawah Data Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Data Laporan Tilawah</CardTitle>
+                <CardDescription>Perkembangan tilawah metode Tilawati</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>No</TableHead>
+                      <TableHead>Nama Santri</TableHead>
+                      <TableHead>Kelas</TableHead>
+                      <TableHead>Halaqoh</TableHead>
+                      <TableHead>Jilid</TableHead>
+                      <TableHead>Halaman</TableHead>
+                      <TableHead>Progress</TableHead>
+                      <TableHead>Setoran</TableHead>
+                      <TableHead>Nilai</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredTilawahSantri.length > 0 ? (
+                      filteredTilawahSantri.map((santri, index) => (
+                        <TableRow key={santri.id}>
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell className="font-medium">{santri.nama}</TableCell>
+                          <TableCell>{santri.kelas}</TableCell>
+                          <TableCell>{santri.halaqoh}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">Jilid {santri.jilidSaatIni}</Badge>
+                          </TableCell>
+                          <TableCell>{santri.halamanSaatIni}/{HALAMAN_PER_JILID}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Progress value={santri.progressJilid} className="w-16 h-2" />
+                              <span className="text-xs text-muted-foreground">{santri.progressJilid}%</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>{santri.jumlahSetoran}x</TableCell>
+                          <TableCell>
+                            <Badge variant={santri.rataRataNilai >= 80 ? "default" : santri.rataRataNilai >= 70 ? "secondary" : "outline"}>
+                              {santri.rataRataNilai || "-"}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
+                          Belum ada data laporan tilawah
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
           </TabsContent>
