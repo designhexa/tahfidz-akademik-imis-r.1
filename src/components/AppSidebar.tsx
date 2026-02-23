@@ -45,7 +45,7 @@ type MenuItem = {
 
 const setoranItems: MenuItem[] = [
   { title: "Setoran Harian", url: "/setoran", icon: BookOpen },
-  { title: "Drill Hafalan", url: "/setoran?tab=drill", icon: Target },
+  { title: "Drill Hafalan", url: "/drill", icon: Target },
   { title: "Laporan", url: "/laporan", icon: FileText },
 ];
 

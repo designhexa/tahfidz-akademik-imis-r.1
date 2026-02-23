@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import SetoranHafalan from "./pages/SetoranHafalan";
+import DrillHafalan from "./pages/DrillHafalan";
 import LaporanHafalan from "./pages/LaporanHafalan";
 import UjianTasmi from "./pages/UjianTasmi";
 import UjianTahfidz from "./pages/UjianTahfidz";
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/setoran" element={<SetoranHafalan />} />
+            <Route path="/drill" element={<DrillHafalan />} />
             <Route path="/laporan" element={<LaporanHafalan />} />
             <Route path="/ujian-tasmi" element={<UjianTasmi />} />
             <Route path="/ujian-tahfidz" element={<UjianTahfidz />} />
