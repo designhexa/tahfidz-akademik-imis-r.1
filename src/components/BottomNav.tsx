@@ -20,7 +20,7 @@ const mainNavItems = [
 
 // Menu tambahan di sheet "More"
 const moreNavItems = [
-  { title: "Drill Hafalan", url: "/setoran?tab=drill" },
+  { title: "Drill Hafalan", url: "/drill" },
   { title: "Ujian Tasmi'", url: "/ujian-tasmi" },
   { title: "Ujian Tahfidz", url: "/ujian-tahfidz" },
   { title: "Ujian Naik Jilid", url: "/tilawah/ujian" },
