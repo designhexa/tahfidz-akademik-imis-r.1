@@ -268,6 +268,7 @@ export default function Dashboard() {
 
         {/* CHARTS */}
         <div className="grid gap-6 md:grid-cols-2">
+          {/* BAR CHART */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -281,29 +282,33 @@ export default function Dashboard() {
             </CardHeader>
 
             <CardContent>
-              <div className="min-w-[350px] h-[260px]">
+              <ChartContainer
+                config={barChartConfig}
+                className="min-w-[350px] h-[260px]"
+              >
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={targetPerKelasData}>
                     <CartesianGrid vertical={false} />
                     <XAxis dataKey="name" />
                     <YAxis />
-                    <ChartTooltip
-                      content={<ChartTooltipContent />}
-                    />
+                    <ChartTooltip content={<ChartTooltipContent />} />
                     <Bar
                       dataKey="memenuhi"
-                      fill="hsl(var(--chart-2))"
+                      fill="var(--color-memenuhi)"
+                      radius={6}
                     />
                     <Bar
                       dataKey="belum"
-                      fill="hsl(var(--chart-1))"
+                      fill="var(--color-belum)"
+                      radius={6}
                     />
                   </BarChart>
                 </ResponsiveContainer>
-              </div>
+              </ChartContainer>
             </CardContent>
           </Card>
 
+          {/* PIE CHART */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -316,9 +321,13 @@ export default function Dashboard() {
             </CardHeader>
 
             <CardContent>
-              <div className="min-w-[280px] h-[260px]">
+              <ChartContainer
+                config={pieChartConfig}
+                className="min-w-[280px] h-[260px]"
+              >
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
+                    <ChartTooltip content={<ChartTooltipContent />} />
                     <Pie
                       data={pieChartData}
                       dataKey="value"
@@ -327,22 +336,93 @@ export default function Dashboard() {
                       innerRadius={35}
                       outerRadius={60}
                     >
-                      {pieChartData.map(
-                        (_, index) => (
-                          <Cell
-                            key={index}
-                            fill={
-                              index === 0
-                                ? "hsl(var(--chart-2))"
-                                : "hsl(var(--chart-1))"
-                            }
-                          />
-                        )
-                      )}
+                      {pieChartData.map((entry) => (
+                        <Cell
+                          key={entry.name}
+                          fill={`var(--color-${entry.name})`}
+                        />
+                      ))}
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
-              </div>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* TABLES */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* TARGET BELUM TERCAPAI */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Santri Belum Memenuhi Target</CardTitle>
+              <CardDescription>
+                5 santri dengan capaian di bawah target kelas
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nama</TableHead>
+                    <TableHead>Kelas</TableHead>
+                    <TableHead>Juz</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {studentsNotMeetingTarget.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell className="font-medium">
+                        {student.name}
+                      </TableCell>
+                      <TableCell>
+                        {student.kelasNumber}
+                      </TableCell>
+                      <TableCell>
+                        {student.juzSelesai.length}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          {/* CALON TASMI */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Calon Tasmi'</CardTitle>
+              <CardDescription>
+                5 santri yang siap mengikuti tasmi'
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nama</TableHead>
+                    <TableHead>Kelas</TableHead>
+                    <TableHead>Juz Terakhir</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {eligibleForTasmi.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell className="font-medium">
+                        {student.name}
+                      </TableCell>
+                      <TableCell>
+                        {student.kelasNumber}
+                      </TableCell>
+                      <TableCell>
+                        {getNextJuzForStudent(student.juzSelesai)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </div>
@@ -350,6 +430,8 @@ export default function Dashboard() {
     </Layout>
   );
 }
+
+
 
 /* ================= HELPER ================= */
 
