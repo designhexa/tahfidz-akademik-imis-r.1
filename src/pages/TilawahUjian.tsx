@@ -533,7 +533,7 @@ export default function TilawahUjian() {
               </Select>
             </div>
 
-            <Table className="table-fixed w-full">
+            <Table className="w-full min-w-[900px]">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12 text-center">No</TableHead>
