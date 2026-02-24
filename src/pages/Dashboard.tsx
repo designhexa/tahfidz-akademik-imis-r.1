@@ -46,6 +46,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+import { Cell } from "recharts";
+
 export default function Dashboard() {
   const [stats, setStats] = useState({
     totalSantri: 0,
@@ -227,20 +229,31 @@ export default function Dashboard() {
                 Proporsi santri memenuhi target
               </CardDescription>
             </CardHeader>
-            <CardContent className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Tooltip />
-                  <Legend />
-                  <Pie
-                    data={pieChartData}
-                    dataKey="value"
-                    nameKey="name"
-                    outerRadius={90}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
+            <Card>
+              <CardHeader>
+                <CardTitle>Ringkasan Target Keseluruhan</CardTitle>
+                <CardDescription>
+                  Proporsi santri memenuhi target
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Tooltip />
+                    <Legend />
+                    <Pie
+                      data={pieChartData}
+                      dataKey="value"
+                      nameKey="name"
+                      outerRadius={90}
+                    >
+                      <Cell fill="#22c55e" />
+                      <Cell fill="#ef4444" />
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
           </Card>
         </div>
 
