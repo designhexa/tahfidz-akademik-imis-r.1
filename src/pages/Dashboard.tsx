@@ -3,16 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Users, 
-  BookOpenCheck, 
-  BookOpen, 
-  TrendingUp, 
-  Target, 
+import {
+  Users,
+  BookOpenCheck,
+  BookOpen,
+  TrendingUp,
+  Target,
   Award,
   CheckCircle,
   XCircle,
-  ArrowRight
+  ArrowRight,
 } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { Link } from "react-router-dom";
@@ -25,21 +25,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import {
   mockSantriProgress,
   calculateTargetStats,
   checkTargetStatus,
   CLASS_TARGETS,
-  StudentProgress
 } from "@/lib/target-hafalan";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
-  type ChartConfig
-} from "@/components/ui/chart";
+
 import {
   BarChart,
   Bar,
@@ -48,9 +41,10 @@ import {
   CartesianGrid,
   PieChart,
   Pie,
-  Cell
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from "recharts";
-import { ResponsiveContainer } from "recharts";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -72,7 +66,8 @@ export default function Dashboard() {
     ]);
 
     const avgKelancaran = setoranRes.data?.length
-      ? setoranRes.data.reduce((acc, curr) => acc + (curr.nilai_kelancaran || 0), 0) / setoranRes.data.length
+      ? setoranRes.data.reduce((acc, curr) => acc + (curr.nilai_kelancaran || 0), 0) /
+        setoranRes.data.length
       : 0;
 
     setStats({
@@ -83,20 +78,26 @@ export default function Dashboard() {
     });
   };
 
-  // Target stats from mock data
-  const targetStats = useMemo(() => calculateTargetStats(mockSantriProgress), []);
+  const targetStats = useMemo(
+    () => calculateTargetStats(mockSantriProgress),
+    []
+  );
 
-  // Data for target per kelas chart
   const targetPerKelasData = useMemo(() => {
-    const kelasGroups: Record<string, { total: number; meetsTarget: number }> = {};
-    
-    mockSantriProgress.forEach(student => {
+    const kelasGroups: Record<
+      string,
+      { total: number; meetsTarget: number }
+    > = {};
+
+    mockSantriProgress.forEach((student) => {
       const kelas = student.kelasNumber;
+
       if (!kelasGroups[kelas]) {
         kelasGroups[kelas] = { total: 0, meetsTarget: 0 };
       }
+
       kelasGroups[kelas].total += 1;
-      
+
       const status = checkTargetStatus(kelas, student.juzSelesai);
       if (status.meetsTarget) {
         kelasGroups[kelas].meetsTarget += 1;
@@ -109,53 +110,25 @@ export default function Dashboard() {
         name: `Kelas ${kelas}`,
         memenuhi: data.meetsTarget,
         belum: data.total - data.meetsTarget,
-        total: data.total
       }));
   }, []);
 
-  // Pie chart data
-  const pieChartData = useMemo(() => [
-    { name: "memenuhi", value: targetStats.meetsTarget, fill: "var(--color-memenuhi)" },
-    { name: "belum", value: targetStats.notMeetsTarget, fill: "var(--color-belum)" },
-  ], [targetStats]);
+  const pieChartData = [
+    { name: "Memenuhi", value: targetStats.meetsTarget },
+    { name: "Belum", value: targetStats.notMeetsTarget },
+  ];
 
-  // Chart config for bar chart
-  const barChartConfig = {
-    memenuhi: {
-      label: "Memenuhi Target",
-      color: "hsl(var(--chart-2))",
-    },
-    belum: {
-      label: "Belum Memenuhi",
-      color: "hsl(var(--chart-1))",
-    },
-  } satisfies ChartConfig;
-
-  // Chart config for pie chart
-  const pieChartConfig = {
-    memenuhi: {
-      label: "Memenuhi Target",
-      color: "hsl(var(--chart-2))",
-    },
-    belum: {
-      label: "Belum Memenuhi",
-      color: "hsl(var(--chart-1))",
-    },
-  } satisfies ChartConfig;
-
-  // Students not meeting targets
   const studentsNotMeetingTarget = useMemo(() => {
     return mockSantriProgress
-      .filter(s => {
+      .filter((s) => {
         const status = checkTargetStatus(s.kelasNumber, s.juzSelesai);
         return !status.meetsTarget;
       })
       .slice(0, 5);
   }, []);
 
-  // Eligible for tasmi'
   const eligibleForTasmi = useMemo(() => {
-    return mockSantriProgress.filter(s => s.eligibleForTasmi).slice(0, 5);
+    return mockSantriProgress.filter((s) => s.eligibleForTasmi).slice(0, 5);
   }, []);
 
   const statCards = [
@@ -163,147 +136,123 @@ export default function Dashboard() {
       title: "Total Santri",
       value: stats.totalSantri || mockSantriProgress.length,
       icon: Users,
-      gradient: "from-amber-500 to-amber-800",
+      color: "bg-amber-600",
     },
     {
       title: "Memenuhi Target",
       value: targetStats.meetsTarget,
       icon: CheckCircle,
-      gradient: "from-green-500 to-green-500",
-      subtitle: `${targetStats.meetsTargetPercentage}%`
+      color: "bg-green-600",
     },
     {
       title: "Belum Memenuhi",
       value: targetStats.notMeetsTarget,
       icon: XCircle,
-      gradient: "from-destructive to-destructive/80",
+      color: "bg-red-600",
     },
     {
       title: "Calon Tasmi'",
       value: targetStats.eligibleForTasmi,
       icon: BookOpenCheck,
-      gradient: "from-green-500 to-green-800",
+      color: "bg-emerald-600",
     },
   ];
 
   return (
     <Layout>
       <div className="space-y-6">
+
+        {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard Tahfidz</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold">
+            Dashboard Tahfidz
+          </h1>
+          <p className="text-muted-foreground">
             Selamat datang di sistem manajemen hafalan Al-Qur'an
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {statCards.map((card) => (
-            <Card key={card.title} className="overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {card.title}
-                </CardTitle>
-                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${card.gradient} flex items-center justify-center`}>
-                  <card.icon className="w-5 h-5 text-primary-foreground" />
+            <Card key={card.title}>
+              <CardContent className="p-4 flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    {card.title}
+                  </p>
+                  <p className="text-2xl font-bold">{card.value}</p>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{card.value}</div>
-                {card.subtitle && (
-                  <p className="text-xs text-muted-foreground mt-1">{card.subtitle}</p>
-                )}
+                <div
+                  className={`w-10 h-10 rounded-lg ${card.color} flex items-center justify-center`}
+                >
+                  <card.icon className="w-5 h-5 text-white" />
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Charts Row */}
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Target per Kelas Chart */}
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          {/* Bar Chart */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5" />
-                Pencapaian Target per Kelas
-              </CardTitle>
+              <CardTitle>Pencapaian Target per Kelas</CardTitle>
               <CardDescription>
-                Perbandingan santri yang memenuhi target hafalan
+                Perbandingan santri yang memenuhi target
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="relative w-full h-[300px] overflow-hidden">
-                <ResponsiveContainer width="99%" height="100%">
-                  <BarChart
-                    data={targetPerKelasData}
-                    margin={{ top: 20, right: 0, left: 0, bottom: 50 }}
-                  >
-                    <CartesianGrid vertical={false} />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend verticalAlign="bottom" height={36} />
-                    <Bar dataKey="memenuhi" fill="#22c55e" />
-                    <Bar dataKey="belum" fill="#ef4444" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+            <CardContent className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={targetPerKelasData}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="memenuhi" fill="#22c55e" />
+                  <Bar dataKey="belum" fill="#ef4444" />
+                </BarChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
 
           {/* Pie Chart */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                Ringkasan Target Keseluruhan
-              </CardTitle>
+              <CardTitle>Ringkasan Target Keseluruhan</CardTitle>
               <CardDescription>
-                Proporsi santri yang memenuhi target
+                Proporsi santri memenuhi target
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="relative w-full h-[300px] overflow-hidden">
-                <ResponsiveContainer width="99%" height="100%">
-                  <PieChart>
-                    <Tooltip />
-                    <Legend verticalAlign="bottom" height={36} />
-                    <Pie
-                      data={pieChartData}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="45%"
-                      outerRadius={80}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+            <CardContent className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Tooltip />
+                  <Legend />
+                  <Pie
+                    data={pieChartData}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={90}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
         </div>
 
-        {/* Tables Row */}
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Santri Belum Memenuhi Target */}
+        {/* Tables */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          {/* Belum Target */}
           <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <XCircle className="w-4 h-4 text-destructive" />
-                    Santri Belum Memenuhi Target
-                  </CardTitle>
-                  <CardDescription>Perlu perhatian khusus</CardDescription>
-                </div>
-                <Link to="/laporan-hafalan">
-                  <Button variant="ghost" size="sm">
-                    Lihat Semua <ArrowRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </Link>
-              </div>
+            <CardHeader>
+              <CardTitle>Santri Belum Memenuhi Target</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -314,83 +263,18 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {studentsNotMeetingTarget.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center text-muted-foreground">
-                        Semua santri memenuhi target 🎉
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    studentsNotMeetingTarget.map((student) => {
-                      const target = CLASS_TARGETS[student.kelasNumber];
-                      return (
-                        <TableRow key={student.id}>
-                          <TableCell className="font-medium">{student.nama}</TableCell>
-                          <TableCell>{student.kelas}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">
-                              {target?.targetJuz ? `Juz ${target.targetJuz}` : "Surat Pilihan"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="destructive" className="text-xs">
-                              {student.jumlahJuzHafal} Juz
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          {/* Calon Peserta Tasmi' */}
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Award className="w-4 h-4 text-secondary" />
-                    Calon Peserta Tasmi'
-                  </CardTitle>
-                  <CardDescription>Siap mengikuti ujian</CardDescription>
-                </div>
-                <Link to="/ujian-tasmi">
-                  <Button variant="ghost" size="sm">
-                    Lihat Semua <ArrowRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </Link>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nama</TableHead>
-                    <TableHead>Kelas</TableHead>
-                    <TableHead>Hafalan</TableHead>
-                    <TableHead>Juz Berikut</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {eligibleForTasmi.map((student) => {
-                    const nextJuz = student.juzSelesai.length > 0 
-                      ? getNextJuzForStudent(student.juzSelesai)
-                      : 30;
+                  {studentsNotMeetingTarget.map((student) => {
+                    const target = CLASS_TARGETS[student.kelasNumber];
                     return (
                       <TableRow key={student.id}>
-                        <TableCell className="font-medium">{student.nama}</TableCell>
+                        <TableCell>{student.nama}</TableCell>
                         <TableCell>{student.kelas}</TableCell>
                         <TableCell>
-                          <Badge variant="secondary">
-                            {student.jumlahJuzHafal} Juz
-                          </Badge>
+                          Juz {target?.targetJuz}
                         </TableCell>
                         <TableCell>
-                          <Badge className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
-                            Juz {nextJuz}
+                          <Badge variant="destructive">
+                            {student.jumlahJuzHafal} Juz
                           </Badge>
                         </TableCell>
                       </TableRow>
@@ -400,38 +284,59 @@ export default function Dashboard() {
               </Table>
             </CardContent>
           </Card>
+
+          {/* Tasmi */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Calon Peserta Tasmi'</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nama</TableHead>
+                    <TableHead>Kelas</TableHead>
+                    <TableHead>Hafalan</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {eligibleForTasmi.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell>{student.nama}</TableCell>
+                      <TableCell>{student.kelas}</TableCell>
+                      <TableCell>
+                        <Badge>{student.jumlahJuzHafal} Juz</Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Target Kelas Info */}
+        {/* Target Kelas */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5" />
-              Target Hafalan per Kelas
-            </CardTitle>
-            <CardDescription>
-              Konfigurasi target hafalan yang harus dicapai setiap kelas
-            </CardDescription>
+            <CardTitle>Target Hafalan per Kelas</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-              {Object.entries(CLASS_TARGETS).map(([key, target]) => (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {Object.values(CLASS_TARGETS).map((target) => (
                 <div
-                  key={key}
-                  className="p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                  key={target.kelasName}
+                  className="p-4 border rounded-lg"
                 >
-                  <div className="font-semibold text-sm">{target.kelasName}</div>
-                  <div className="text-xl font-bold text-primary mt-1">
-                    {target.targetJuz ? `Juz ${target.targetJuz}` : "Surat Pilihan"}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {target.targetJuz ? `Target: Juz ${target.targetJuz}` : "Admin config"}
-                  </div>
+                  <p className="font-semibold">{target.kelasName}</p>
+                  <p className="text-primary font-bold">
+                    Juz {target.targetJuz}
+                  </p>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
+
       </div>
     </Layout>
   );
