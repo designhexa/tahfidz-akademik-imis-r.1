@@ -50,6 +50,7 @@ import {
   Pie,
   Cell
 } from "recharts";
+import { ResponsiveContainer } from "recharts";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -231,22 +232,30 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ChartContainer config={barChartConfig} className="h-64 w-full">
-                <BarChart data={targetPerKelasData} accessibilityLayer>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                  />
-                  <YAxis tickLine={false} axisLine={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <ChartLegend content={<ChartLegendContent />} />
-                  <Bar dataKey="memenuhi" fill="var(--color-memenuhi)" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="belum" fill="var(--color-belum)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ChartContainer>
+              <div className="w-full overflow-x-auto">
+                <div className="min-w-[400px] h-[280px]">
+                  <ChartContainer config={barChartConfig} className="w-full h-full">
+                    <BarChart
+                      data={targetPerKelasData}
+                      margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
+                      accessibilityLayer
+                    >
+                      <CartesianGrid vertical={false} />
+                      <XAxis
+                        dataKey="name"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                      />
+                      <YAxis tickLine={false} axisLine={false} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <ChartLegend content={<ChartLegendContent />} />
+                      <Bar dataKey="memenuhi" fill="var(--color-memenuhi)" radius={[4,4,0,0]} />
+                      <Bar dataKey="belum" fill="var(--color-belum)" radius={[4,4,0,0]} />
+                    </BarChart>
+                  </ChartContainer>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -262,22 +271,31 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ChartContainer config={pieChartConfig} className="h-64 w-full">
-                <PieChart accessibilityLayer>
-                  <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-                  <Pie
-                    data={pieChartData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                  />
-                  <ChartLegend content={<ChartLegendContent nameKey="name" />} />
-                </PieChart>
-              </ChartContainer>
+              <div className="w-full overflow-x-auto">
+                <div className="min-w-[320px]">
+                  <ChartContainer
+                    config={pieChartConfig}
+                    className="w-full h-[280px] sm:h-[320px]"
+                  >
+                    <PieChart accessibilityLayer>
+                      <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+
+                      <Pie
+                        data={pieChartData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={70}
+                        paddingAngle={5}
+                      />
+
+                      <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+                    </PieChart>
+                  </ChartContainer>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
