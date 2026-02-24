@@ -236,13 +236,13 @@ export default function Dashboard() {
                 <div className="min-w-[350px] h-[260px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={targetPerKelasData}>
-                      <CartesianGrid vertical={false} />
+                  <CartesianGrid vertical={false} />
                       <XAxis dataKey="name" fontSize={11} />
                       <YAxis fontSize={11} />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="memenuhi" fill="var(--color-memenuhi)" />
-                      <Bar dataKey="belum" fill="var(--color-belum)" />
-                    </BarChart>
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="memenuhi" fill="var(--color-memenuhi)" />
+                  <Bar dataKey="belum" fill="var(--color-belum)" />
+                </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
@@ -264,16 +264,16 @@ export default function Dashboard() {
               <div className="w-full overflow-x-auto">
                 <div className="min-w-[280px] h-[260px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={pieChartData}
-                        dataKey="value"
-                        cx="50%"
-                        cy="50%"
+                <PieChart>
+                  <Pie
+                    data={pieChartData}
+                    dataKey="value"
+                    cx="50%"
+                    cy="50%"
                         innerRadius={35}
                         outerRadius={60}
-                      />
-                    </PieChart>
+                  />
+                </PieChart>
                   </ResponsiveContainer>
                 </div>
               </div>
