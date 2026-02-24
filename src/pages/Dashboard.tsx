@@ -1,9 +1,14 @@
-// PASTE FULL FILE INI
-
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import {
   Users,
   BookOpenCheck,
@@ -13,7 +18,7 @@ import {
   Award,
   CheckCircle,
   XCircle,
-  ArrowRight
+  ArrowRight,
 } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { Link } from "react-router-dom";
@@ -31,7 +36,16 @@ import {
   calculateTargetStats,
   checkTargetStatus,
   CLASS_TARGETS,
+  StudentProgress,
 } from "@/lib/target-hafalan";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import {
   BarChart,
   Bar,
@@ -40,11 +54,9 @@ import {
   CartesianGrid,
   PieChart,
   Pie,
-  ResponsiveContainer,
   Cell,
+  ResponsiveContainer,
 } from "recharts";
-
-/* ================= COMPONENT ================= */
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -54,44 +66,34 @@ export default function Dashboard() {
     avgKelancaran: 0,
   });
 
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     fetchStats();
   }, []);
 
   const fetchStats = async () => {
-    try {
-      setLoading(true);
+    const [santriRes, halaqohRes, setoranRes] = await Promise.all([
+      supabase.from("santri").select("*", { count: "exact", head: true }),
+      supabase.from("halaqoh").select("*", { count: "exact", head: true }),
+      supabase.from("setoran").select("nilai_kelancaran"),
+    ]);
 
-      const [santriRes, halaqohRes, setoranRes] = await Promise.all([
-        supabase.from("santri").select("*", { count: "exact", head: true }),
-        supabase.from("halaqoh").select("*", { count: "exact", head: true }),
-        supabase.from("setoran").select("nilai_kelancaran"),
-      ]);
+    const avgKelancaran =
+      setoranRes.data?.length
+        ? setoranRes.data.reduce(
+            (acc, curr) => acc + (curr.nilai_kelancaran || 0),
+            0
+          ) / setoranRes.data.length
+        : 0;
 
-      const nilai =
-        setoranRes.data?.map((s) => s.nilai_kelancaran ?? 0) ?? [];
-
-      const avg =
-        nilai.length > 0
-          ? nilai.reduce((a, b) => a + b, 0) / nilai.length
-          : 0;
-
-      setStats({
-        totalSantri: santriRes.count ?? 0,
-        totalHalaqoh: halaqohRes.count ?? 0,
-        totalSetoran: nilai.length,
-        avgKelancaran: Math.round(avg),
-      });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+    setStats({
+      totalSantri: santriRes.count || 0,
+      totalHalaqoh: halaqohRes.count || 0,
+      totalSetoran: setoranRes.data?.length || 0,
+      avgKelancaran: Math.round(avgKelancaran),
+    });
   };
 
-  /* ================= TARGET DATA ================= */
+  /* ================= TARGET STATS ================= */
 
   const targetStats = useMemo(
     () => calculateTargetStats(mockSantriProgress),
@@ -99,49 +101,100 @@ export default function Dashboard() {
   );
 
   const targetPerKelasData = useMemo(() => {
-    const kelasGroups: Record<string, { total: number; meets: number }> = {};
+    const kelasGroups: Record<
+      string,
+      { total: number; meetsTarget: number }
+    > = {};
 
-    mockSantriProgress.forEach((s) => {
-      if (!kelasGroups[s.kelasNumber]) {
-        kelasGroups[s.kelasNumber] = { total: 0, meets: 0 };
+    mockSantriProgress.forEach((student) => {
+      const kelas = student.kelasNumber;
+
+      if (!kelasGroups[kelas]) {
+        kelasGroups[kelas] = { total: 0, meetsTarget: 0 };
       }
 
-      kelasGroups[s.kelasNumber].total += 1;
+      kelasGroups[kelas].total += 1;
 
-      if (checkTargetStatus(s.kelasNumber, s.juzSelesai).meetsTarget) {
-        kelasGroups[s.kelasNumber].meets += 1;
+      const status = checkTargetStatus(
+        kelas,
+        student.juzSelesai
+      );
+
+      if (status.meetsTarget) {
+        kelasGroups[kelas].meetsTarget += 1;
       }
     });
 
-    return Object.entries(kelasGroups).map(([k, v]) => ({
-      name: `Kelas ${k}`,
-      memenuhi: v.meets,
-      belum: v.total - v.meets,
-    }));
+    return Object.entries(kelasGroups)
+      .sort(([a], [b]) => Number(a) - Number(b))
+      .map(([kelas, data]) => ({
+        name: `Kelas ${kelas}`,
+        memenuhi: data.meetsTarget,
+        belum: data.total - data.meetsTarget,
+        total: data.total,
+      }));
   }, []);
 
-  const pieChartData = [
-    { name: "Memenuhi", value: targetStats.meetsTarget },
-    { name: "Belum", value: targetStats.notMeetsTarget },
-  ];
+  const pieChartData = useMemo(
+    () => [
+      {
+        name: "memenuhi",
+        value: targetStats.meetsTarget,
+      },
+      {
+        name: "belum",
+        value: targetStats.notMeetsTarget,
+      },
+    ],
+    [targetStats]
+  );
 
-  const studentsNotMeetingTarget = mockSantriProgress
-    .filter((s) => !checkTargetStatus(s.kelasNumber, s.juzSelesai).meetsTarget)
-    .slice(0, 5);
+  const barChartConfig = {
+    memenuhi: {
+      label: "Memenuhi Target",
+      color: "hsl(var(--chart-2))",
+    },
+    belum: {
+      label: "Belum Memenuhi",
+      color: "hsl(var(--chart-1))",
+    },
+  } satisfies ChartConfig;
 
-  const eligibleForTasmi = mockSantriProgress
-    .filter((s) => s.eligibleForTasmi)
-    .slice(0, 5);
+  const pieChartConfig = {
+    memenuhi: {
+      label: "Memenuhi Target",
+      color: "hsl(var(--chart-2))",
+    },
+    belum: {
+      label: "Belum Memenuhi",
+      color: "hsl(var(--chart-1))",
+    },
+  } satisfies ChartConfig;
 
-  /* ================= STAT CARDS ================= */
+  const studentsNotMeetingTarget = useMemo(() => {
+    return mockSantriProgress
+      .filter((s) => {
+        const status = checkTargetStatus(
+          s.kelasNumber,
+          s.juzSelesai
+        );
+        return !status.meetsTarget;
+      })
+      .slice(0, 5);
+  }, []);
+
+  const eligibleForTasmi = useMemo(() => {
+    return mockSantriProgress
+      .filter((s) => s.eligibleForTasmi)
+      .slice(0, 5);
+  }, []);
 
   const statCards = [
     {
       title: "Total Santri",
       value:
-        stats.totalSantri > 0
-          ? stats.totalSantri
-          : mockSantriProgress.length,
+        stats.totalSantri ||
+        mockSantriProgress.length,
       icon: Users,
       gradient: "from-amber-500 to-amber-800",
     },
@@ -149,7 +202,8 @@ export default function Dashboard() {
       title: "Memenuhi Target",
       value: targetStats.meetsTarget,
       icon: CheckCircle,
-      gradient: "from-green-500 to-green-600",
+      gradient: "from-green-500 to-green-500",
+      subtitle: `${targetStats.meetsTargetPercentage}%`,
     },
     {
       title: "Belum Memenuhi",
@@ -165,36 +219,48 @@ export default function Dashboard() {
     },
   ];
 
-  /* ================= RENDER ================= */
-
   return (
     <Layout>
-      <div className="space-y-6">
-
+      <div className="space-y-6 px-1 sm:px-0">
         {/* HEADER */}
         <div>
-          <h1 className="text-3xl font-bold">Dashboard Tahfidz</h1>
-          <p className="text-muted-foreground">
-            Monitoring target hafalan santri
+          <h1 className="text-3xl font-bold text-foreground">
+            Dashboard Tahfidz
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Selamat datang di sistem manajemen hafalan
+            Al-Qur'an
           </p>
         </div>
 
         {/* STAT CARDS */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {statCards.map((card) => (
-            <Card key={card.title}>
-              <CardHeader className="flex justify-between items-center pb-2">
-                <CardTitle className="text-sm text-muted-foreground">
+            <Card
+              key={card.title}
+              className="overflow-hidden"
+            >
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
                   {card.title}
                 </CardTitle>
+
                 <div
                   className={`w-10 h-10 rounded-lg bg-gradient-to-br ${card.gradient} flex items-center justify-center`}
                 >
-                  <card.icon className="w-5 h-5 text-white" />
+                  <card.icon className="w-5 h-5 text-primary-foreground" />
                 </div>
               </CardHeader>
+
               <CardContent>
-                <div className="text-3xl font-bold">{card.value}</div>
+                <div className="text-3xl font-bold">
+                  {card.value}
+                </div>
+                {card.subtitle && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {card.subtitle}
+                  </p>
+                )}
               </CardContent>
             </Card>
           ))}
@@ -204,114 +270,105 @@ export default function Dashboard() {
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Pencapaian per Kelas</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="w-5 h-5" />
+                Pencapaian Target per Kelas
+              </CardTitle>
+              <CardDescription>
+                Perbandingan santri yang memenuhi
+                target hafalan
+              </CardDescription>
             </CardHeader>
-            <CardContent className="h-[260px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={targetPerKelasData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Bar dataKey="memenuhi" fill="#22c55e" />   // green-500
-                  <Bar dataKey="belum" fill="#ef4444" />      // red-500
-                </BarChart>
-              </ResponsiveContainer>
+
+            <CardContent>
+              <div className="min-w-[350px] h-[260px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={targetPerKelasData}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <ChartTooltip
+                      content={<ChartTooltipContent />}
+                    />
+                    <Bar
+                      dataKey="memenuhi"
+                      fill="hsl(var(--chart-2))"
+                    />
+                    <Bar
+                      dataKey="belum"
+                      fill="hsl(var(--chart-1))"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Ringkasan Target</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Ringkasan Target Keseluruhan
+              </CardTitle>
+              <CardDescription>
+                Proporsi santri yang memenuhi target
+              </CardDescription>
             </CardHeader>
-            <CardContent className="h-[260px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={pieChartData} dataKey="value">
-                    <Cell fill="#22c55e" />
-                    <Cell fill="#ef4444" />
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
+
+            <CardContent>
+              <div className="min-w-[280px] h-[260px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieChartData}
+                      dataKey="value"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={35}
+                      outerRadius={60}
+                    >
+                      {pieChartData.map(
+                        (_, index) => (
+                          <Cell
+                            key={index}
+                            fill={
+                              index === 0
+                                ? "hsl(var(--chart-2))"
+                                : "hsl(var(--chart-1))"
+                            }
+                          />
+                        )
+                      )}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
         </div>
-
-        {/* TABLES */}
-        <div className="grid gap-6 md:grid-cols-2">
-
-          {/* BELUM TARGET */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Belum Memenuhi Target</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nama</TableHead>
-                    <TableHead>Kelas</TableHead>
-                    <TableHead>Hafalan</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {studentsNotMeetingTarget.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={3} className="text-center">
-                        Semua memenuhi target 🎉
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    studentsNotMeetingTarget.map((s) => (
-                      <TableRow key={s.id}>
-                        <TableCell>{s.nama}</TableCell>
-                        <TableCell>{s.kelas}</TableCell>
-                        <TableCell>
-                          <Badge variant="destructive">
-                            {s.jumlahJuzHafal} Juz
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          {/* TASMI */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Calon Peserta Tasmi'</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nama</TableHead>
-                    <TableHead>Kelas</TableHead>
-                    <TableHead>Hafalan</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {eligibleForTasmi.map((s) => (
-                    <TableRow key={s.id}>
-                      <TableCell>{s.nama}</TableCell>
-                      <TableCell>{s.kelas}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">
-                          {s.jumlahJuzHafal} Juz
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-        </div>
-
       </div>
     </Layout>
   );
+}
+
+/* ================= HELPER ================= */
+
+function getNextJuzForStudent(
+  juzSelesai: number[]
+): number {
+  const JUZ_ORDER = [
+    30, 29, 28, 27, 26,
+    1, 2, 3, 4, 5, 6, 7,
+    8, 9, 10, 11, 12, 13,
+    14, 15, 16, 17, 18, 19,
+    20, 21, 22, 23, 24, 25,
+  ];
+
+  for (const juz of JUZ_ORDER) {
+    if (!juzSelesai.includes(juz)) {
+      return juz;
+    }
+  }
+
+  return 30;
 }
