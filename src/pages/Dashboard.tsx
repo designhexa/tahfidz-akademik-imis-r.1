@@ -232,29 +232,28 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="w-full overflow-x-auto">
-                <div className="min-w-[400px] h-[280px]">
-                  <ChartContainer config={barChartConfig} className="w-full h-full">
+              <div className="w-full h-[260px] sm:h-[300px]">
+                <ChartContainer config={barChartConfig} className="w-full h-full">
+                  <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={targetPerKelasData}
                       margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
-                      accessibilityLayer
                     >
                       <CartesianGrid vertical={false} />
                       <XAxis
                         dataKey="name"
                         tickLine={false}
-                        tickMargin={10}
+                        tickMargin={8}
                         axisLine={false}
                       />
                       <YAxis tickLine={false} axisLine={false} />
                       <ChartTooltip content={<ChartTooltipContent />} />
                       <ChartLegend content={<ChartLegendContent />} />
-                      <Bar dataKey="memenuhi" fill="var(--color-memenuhi)" radius={[4,4,0,0]} />
-                      <Bar dataKey="belum" fill="var(--color-belum)" radius={[4,4,0,0]} />
+                      <Bar dataKey="memenuhi" fill="var(--color-memenuhi)" radius={[6,6,0,0]} />
+                      <Bar dataKey="belum" fill="var(--color-belum)" radius={[6,6,0,0]} />
                     </BarChart>
-                  </ChartContainer>
-                </div>
+                  </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </CardContent>
           </Card>
@@ -271,13 +270,13 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="w-full overflow-x-auto">
-                <div className="min-w-[320px]">
-                  <ChartContainer
-                    config={pieChartConfig}
-                    className="w-full h-[280px] sm:h-[320px]"
-                  >
-                    <PieChart accessibilityLayer>
+              <div className="w-full h-[260px] sm:h-[320px]">
+                <ChartContainer
+                  config={pieChartConfig}
+                  className="w-full h-full"
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
                       <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
 
                       <Pie
@@ -287,14 +286,14 @@ export default function Dashboard() {
                         cx="50%"
                         cy="50%"
                         innerRadius={50}
-                        outerRadius={70}
-                        paddingAngle={5}
+                        outerRadius={80}
+                        paddingAngle={4}
                       />
 
                       <ChartLegend content={<ChartLegendContent nameKey="name" />} />
                     </PieChart>
-                  </ChartContainer>
-                </div>
+                  </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </CardContent>
           </Card>
