@@ -232,46 +232,20 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ChartContainer
-                config={barChartConfig}
-                className="w-full h-[260px] sm:h-[300px] md:h-[320px]"
-              >
-                <BarChart
-                  data={targetPerKelasData}
-                  margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
-                  accessibilityLayer
-                >
-                  <CartesianGrid vertical={false} />
-
-                  <XAxis
-                    dataKey="name"
-                    tickLine={false}
-                    tickMargin={8}
-                    axisLine={false}
-                    fontSize={12}
-                  />
-
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    fontSize={12}
-                  />
-
-                  <ChartTooltip content={<ChartTooltipContent />} />
-
-                  <Bar
-                    dataKey="memenuhi"
-                    fill="var(--color-memenuhi)"
-                    radius={[4, 4, 0, 0]}
-                  />
-
-                  <Bar
-                    dataKey="belum"
-                    fill="var(--color-belum)"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ChartContainer>
+              <div className="w-full overflow-x-auto">
+                <div className="min-w-[350px] h-[260px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={targetPerKelasData}>
+                      <CartesianGrid vertical={false} />
+                      <XAxis dataKey="name" fontSize={11} />
+                      <YAxis fontSize={11} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="memenuhi" fill="var(--color-memenuhi)" />
+                      <Bar dataKey="belum" fill="var(--color-belum)" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -287,25 +261,22 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ChartContainer
-                config={pieChartConfig}
-                className="w-full h-[260px] sm:h-[300px] md:h-[320px]"
-              >
-                <PieChart accessibilityLayer>
-                  <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-
-                  <Pie
-                    data={pieChartData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={65}
-                    paddingAngle={4}
-                  />
-                </PieChart>
-              </ChartContainer>
+              <div className="w-full overflow-x-auto">
+                <div className="min-w-[280px] h-[260px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pieChartData}
+                        dataKey="value"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={35}
+                        outerRadius={60}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -332,7 +303,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="w-full overflow-x-auto">
-                <Table className="min-w-[500px]">
+                <Table className="min-w-[600px]">
                   <TableHeader>
                     <TableRow>
                       <TableHead>Nama</TableHead>
@@ -394,7 +365,8 @@ export default function Dashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
+            <div className="w-full overflow-x-auto">
+              <Table className="min-w-[600px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nama</TableHead>
@@ -427,6 +399,7 @@ export default function Dashboard() {
                   })}
                 </TableBody>
               </Table>
+            </div>
             </CardContent>
           </Card>
         </div>
