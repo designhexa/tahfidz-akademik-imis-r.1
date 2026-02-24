@@ -1,14 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Layout } from "@/components/Layout";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -16,345 +9,508 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Plus,
-  Download,
+  ChevronLeft,
+  ChevronRight,
   BookOpen,
+  RefreshCw,
   BookMarked,
   Home,
-  RefreshCw,
-  Search,
+  User,
 } from "lucide-react";
-import { toast } from "sonner";
+import { MonthlyCalendar } from "@/components/setoran/MonthlyCalendar";
+import { EntryModal } from "@/components/setoran/EntryModal";
+import { type CalendarEntry } from "@/components/setoran/CalendarCell";
+import { MOCK_SANTRI, MOCK_HALAQOH, getSantriByHalaqoh } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
-import TambahSetoran from "@/pages/TambahSetoran";
 
-const jenisSetoranOptions = [
-  {
-    value: "setoran_baru",
-    label: "Setoran Baru",
-    icon: BookOpen,
-  },
-  {
-    value: "murojaah",
-    label: "Murojaah",
-    icon: RefreshCw,
-  },
-  {
-    value: "tilawah",
-    label: "Tilawah",
-    icon: BookMarked,
-  },
-  {
-    value: "tilawah_rumah",
-    label: "Murojaah di Rumah",
-    icon: Home,
-  },
-];
+type MainTab = "setoran_hafalan" | "murojaah" | "tilawah" | "murojaah_rumah";
 
-const mockSetoranList = [
+const HEADER_TITLES: Record<MainTab, string> = {
+  setoran_hafalan: "SETORAN HAFALAN",
+  murojaah: "MUROJAAH DI SEKOLAH",
+  tilawah: "SETORAN TILAWAH",
+  murojaah_rumah: "MUROJAAH DI RUMAH",
+};
+
+// Sub-type options per tab
+const SUB_OPTIONS: Record<MainTab, { value: string; label: string }[]> = {
+  setoran_hafalan: [
+    { value: "setoran_hafalan", label: "Setoran Hafalan" },
+    { value: "drill", label: "Drill Hafalan" },
+    { value: "tasmi", label: "Ujian Tasmi'" },
+  ],
+  murojaah: [],
+  tilawah: [
+    { value: "tilawah_harian", label: "Setoran Tilawah Harian" },
+    { value: "ujian_jilid", label: "Ujian Kenaikan Jilid" },
+  ],
+  murojaah_rumah: [],
+};
+
+// Mock entries for demo
+const MOCK_ENTRIES: CalendarEntry[] = [
   {
-    id: 1,
-    tanggal: "15/01/2025",
-    santri: "Muhammad Faiz",
-    jenis: "setoran_baru",
-    juz: 3,
-    materi: "Al-Baqarah 101-120",
-    nilai: 95,
+    tanggal: new Date(2025, 7, 4), // Aug 4
+    santriId: "s1",
+    jenis: "setoran_hafalan",
+    juz: 26,
+    surah: "Al-Kahfi",
+    ayat: "1-19",
     status: "Lancar",
   },
   {
-    id: 2,
-    tanggal: "14/01/2025",
-    santri: "Fatimah Zahra",
+    tanggal: new Date(2025, 7, 5),
+    santriId: "s1",
+    jenis: "setoran_hafalan",
+    juz: 26,
+    halaman: "1-5",
+    status: "Lancar",
+  },
+  {
+    tanggal: new Date(2025, 7, 6),
+    santriId: "s1",
+    jenis: "setoran_hafalan",
+    surah: "Al-Kahfi",
+    ayat: "17-21",
+    status: "Lancar",
+  },
+  {
+    tanggal: new Date(2025, 7, 7),
+    santriId: "s1",
+    jenis: "setoran_hafalan",
+    juz: 26,
+    halaman: "6-10",
+    status: "Lancar",
+  },
+  {
+    tanggal: new Date(2025, 7, 11),
+    santriId: "s1",
+    jenis: "setoran_hafalan",
+    surah: "Al-Kahfi",
+    ayat: "21-22",
+    status: "Lancar",
+  },
+  {
+    tanggal: new Date(2025, 7, 13),
+    santriId: "s1",
+    jenis: "drill",
+    juz: 26,
+    halaman: "4-15",
+    status: "Lancar",
+  },
+  {
+    tanggal: new Date(2025, 7, 14),
+    santriId: "s1",
+    jenis: "setoran_hafalan",
+    juz: 26,
+    halaman: "21-24",
+    status: "Ulangi",
+  },
+  {
+    tanggal: new Date(2025, 7, 18),
+    santriId: "s1",
+    jenis: "drill",
+    juz: 27,
+    halaman: "1-5",
+    status: "Lulus",
+  },
+  {
+    tanggal: new Date(2025, 7, 25),
+    santriId: "s1",
+    jenis: "setoran_hafalan",
+    juz: 27,
+    surah: "Al-Kahfi",
+    ayat: "28-20",
+    status: "Ulangi",
+  },
+  // Murojaah
+  {
+    tanggal: new Date(2025, 7, 4),
+    santriId: "s1",
     jenis: "murojaah",
-    juz: 4,
-    materi: "An-Nisa 1-30",
-    nilai: 92,
+    juz: 30,
+    halaman: "6-10",
     status: "Lancar",
   },
   {
-    id: 3,
-    tanggal: "13/01/2025",
-    santri: "Muhammad Faiz",
-    jenis: "tilawah",
-    juz: 3,
-    materi: "Al-Baqarah 80-100",
-    nilai: 90,
+    tanggal: new Date(2025, 7, 5),
+    santriId: "s1",
+    jenis: "murojaah",
+    juz: 30,
+    halaman: "7-15",
     status: "Lancar",
+  },
+  {
+    tanggal: new Date(2025, 7, 12),
+    santriId: "s1",
+    jenis: "murojaah",
+    juz: 29,
+    halaman: "11-15",
+    status: "Lancar",
+  },
+  {
+    tanggal: new Date(2025, 7, 13),
+    santriId: "s1",
+    jenis: "murojaah",
+    status: "Sakit",
+  },
+  // Murojaah rumah
+  {
+    tanggal: new Date(2025, 7, 4),
+    santriId: "s1",
+    jenis: "murojaah_rumah",
+    juz: 30,
+    halaman: "11-20",
+  },
+  {
+    tanggal: new Date(2025, 7, 5),
+    santriId: "s1",
+    jenis: "murojaah_rumah",
+    juz: 29,
+    halaman: "1-10",
   },
 ];
 
 const SetoranHafalan = () => {
-  const [search, setSearch] = useState("");
-  const [filterJuz, setFilterJuz] = useState("all");
-  const [filterJenis, setFilterJenis] = useState("all");
-  const [filterHalaqoh, setFilterHalaqoh] = useState("all");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const now = new Date();
+  const [activeTab, setActiveTab] = useState<MainTab>("setoran_hafalan");
+  const [subType, setSubType] = useState("setoran_hafalan");
+  const [month, setMonth] = useState(now.getMonth());
+  const [year, setYear] = useState(now.getFullYear());
 
-  const getJenisLabel = (jenis: string) => {
-    const option = jenisSetoranOptions.find((o) => o.value === jenis);
-    return option?.label || jenis;
+  // Filters
+  const [selectedHalaqoh, setSelectedHalaqoh] = useState("");
+  const [selectedSantri, setSelectedSantri] = useState("");
+
+  // Modal
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalDate, setModalDate] = useState<Date | null>(null);
+
+  // Local entries storage
+  const [entries, setEntries] = useState<CalendarEntry[]>(MOCK_ENTRIES);
+
+  const santriList = useMemo(() => {
+    if (!selectedHalaqoh) return MOCK_SANTRI;
+    return getSantriByHalaqoh(selectedHalaqoh);
+  }, [selectedHalaqoh]);
+
+  const santriData = MOCK_SANTRI.find((s) => s.id === selectedSantri);
+
+  // Filter entries for current tab and santri
+  const filteredEntries = useMemo(() => {
+    if (!selectedSantri) return [];
+    const jenisMap: Record<MainTab, string[]> = {
+      setoran_hafalan: ["setoran_hafalan", "drill", "tasmi"],
+      murojaah: ["murojaah"],
+      tilawah: ["tilawah", "ujian_jilid"],
+      murojaah_rumah: ["murojaah_rumah"],
+    };
+    const allowedJenis = jenisMap[activeTab];
+    return entries.filter(
+      (e) => e.santriId === selectedSantri && allowedJenis.includes(e.jenis)
+    );
+  }, [entries, selectedSantri, activeTab]);
+
+  const handlePrevMonth = () => {
+    if (month === 0) {
+      setMonth(11);
+      setYear(year - 1);
+    } else {
+      setMonth(month - 1);
+    }
   };
 
-  const handleExport = () => {
-    toast.success("Data setoran berhasil diexport!");
+  const handleNextMonth = () => {
+    if (month === 11) {
+      setMonth(0);
+      setYear(year + 1);
+    } else {
+      setMonth(month + 1);
+    }
   };
 
-  const filteredSetoran = mockSetoranList.filter((item) => {
-    const matchSearch = item.santri
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    const matchJuz =
-      filterJuz === "all" || item.juz === Number(filterJuz);
-    const matchJenis =
-      filterJenis === "all" || item.jenis === filterJenis;
+  const handleDateClick = useCallback(
+    (date: Date) => {
+      if (!selectedSantri) return;
+      setModalDate(date);
+      setModalOpen(true);
+    },
+    [selectedSantri]
+  );
 
-    return matchSearch && matchJuz && matchJenis;
-  });
+  const handleSaveEntry = useCallback(
+    (data: any) => {
+      const newEntry: CalendarEntry = {
+        tanggal: data.tanggal,
+        santriId: selectedSantri,
+        jenis: data.jenis,
+        juz: data.juz,
+        surah: data.surah,
+        halaman: data.halaman,
+        ayat: data.ayat,
+        status: data.status,
+        catatan: data.catatan,
+      };
+      setEntries((prev) => [...prev, newEntry]);
+    },
+    [selectedSantri]
+  );
+
+  const monthOptions = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+  ];
+
+  const currentYear = now.getFullYear();
+  const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
+
+  const subOpts = SUB_OPTIONS[activeTab];
 
   return (
     <Layout>
-      <div className="space-y-4 md:space-y-6">
+      <div className="space-y-4 md:space-y-5">
         {/* Header */}
-        <div className="flex flex-col gap-3">
-          <div>
-            <h1 className="text-xl md:text-3xl font-bold text-foreground">
-              Setoran Harian
-            </h1>
-            <p className="text-xs md:text-base text-muted-foreground">
-              Kelola setoran hafalan, murojaah, dan tilawah harian
-            </p>
-          </div>
-
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleExport}>
-              <Download className="w-4 h-4 md:mr-2" />
-              <span className="hidden md:inline">Export</span>
-            </Button>
-
-            {/* Dialog Tambah Setoran (Tanpa Tabs) */}
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm">
-                  <Plus className="w-4 h-4 md:mr-2" />
-                  <span className="hidden sm:inline">
-                    Tambah Setoran
-                  </span>
-                </Button>
-              </DialogTrigger>
-
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <BookOpen className="w-5 h-5" />
-                    Tambah Setoran
-                  </DialogTitle>
-                  <DialogDescription>
-                    Pilih halaqoh, santri, dan lengkapi data
-                    penilaian
-                  </DialogDescription>
-                </DialogHeader>
-
-                <div className="mt-4">
-                  <TambahSetoran />
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-2 md:gap-4">
-          {jenisSetoranOptions.map((option) => (
-            <Card key={option.value}>
-              <CardContent className="p-2 md:p-4">
-                <div className="flex flex-col md:flex-row items-center gap-1 md:gap-3 text-center md:text-left">
-                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <option.icon className="w-4 h-4 md:w-5 md:h-5 text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-lg md:text-2xl font-bold">
-                      {
-                        mockSetoranList.filter(
-                          (s) => s.jenis === option.value
-                        ).length
-                      }
-                    </p>
-                    <p className="text-[9px] md:text-xs text-muted-foreground truncate">
-                      {option.label}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div>
+          <h1 className="text-xl md:text-3xl font-bold text-foreground">
+            Setoran Harian
+          </h1>
+          <p className="text-xs md:text-sm text-muted-foreground">
+            Monitoring setoran hafalan, murojaah, dan tilawah
+          </p>
         </div>
 
         {/* Filters */}
         <Card>
-          <CardContent className="p-3 md:p-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
-              <div className="relative col-span-2 md:col-span-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Cari santri..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10 h-9 md:h-10 text-sm"
-                />
+          <CardContent className="p-3 md:p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <User className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium">Filter</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">Halaqoh</Label>
+                <Select
+                  value={selectedHalaqoh || "all"}
+                  onValueChange={(v) => {
+                    setSelectedHalaqoh(v === "all" ? "" : v);
+                    setSelectedSantri("");
+                  }}
+                >
+                  <SelectTrigger className="h-9 text-xs">
+                    <SelectValue placeholder="Semua Halaqoh" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua Halaqoh</SelectItem>
+                    {MOCK_HALAQOH.map((h) => (
+                      <SelectItem key={h.id} value={h.id}>
+                        {h.nama}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              <Select value={filterJenis} onValueChange={setFilterJenis}>
-                <SelectTrigger className="h-9 md:h-10 text-sm">
-                  <SelectValue placeholder="Jenis" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Jenis</SelectItem>
-                  {jenisSetoranOptions.map((option) => (
-                    <SelectItem
-                      key={option.value}
-                      value={option.value}
-                    >
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-1">
+                <Label className="text-xs">Santri *</Label>
+                <Select
+                  value={selectedSantri}
+                  onValueChange={setSelectedSantri}
+                >
+                  <SelectTrigger className="h-9 text-xs">
+                    <SelectValue placeholder="Pilih Santri" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {santriList.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.nama}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <Select value={filterJuz} onValueChange={setFilterJuz}>
-                <SelectTrigger className="h-9 md:h-10 text-sm">
-                  <SelectValue placeholder="Juz" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Juz</SelectItem>
-                  {Array.from({ length: 30 }, (_, i) => (
-                    <SelectItem
-                      key={i + 1}
-                      value={String(i + 1)}
-                    >
-                      Juz {i + 1}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-1">
+                <Label className="text-xs">Bulan</Label>
+                <Select
+                  value={String(month)}
+                  onValueChange={(v) => setMonth(Number(v))}
+                >
+                  <SelectTrigger className="h-9 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {monthOptions.map((m, i) => (
+                      <SelectItem key={i} value={String(i)}>
+                        {m}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <Select
-                value={filterHalaqoh}
-                onValueChange={setFilterHalaqoh}
-              >
-                <SelectTrigger className="h-9 md:h-10 text-sm">
-                  <SelectValue placeholder="Halaqoh" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    Semua Halaqoh
-                  </SelectItem>
-                  <SelectItem value="azhary">
-                    Halaqoh Al-Azhary
-                  </SelectItem>
-                  <SelectItem value="furqon">
-                    Halaqoh Al-Furqon
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="space-y-1">
+                <Label className="text-xs">Tahun</Label>
+                <Select
+                  value={String(year)}
+                  onValueChange={(v) => setYear(Number(v))}
+                >
+                  <SelectTrigger className="h-9 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {yearOptions.map((y) => (
+                      <SelectItem key={y} value={String(y)}>
+                        {y}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+
+            {santriData && (
+              <div className="mt-3 p-2 bg-primary/10 rounded text-xs">
+                <span className="font-medium">{santriData.nama}</span> •{" "}
+                NIS: {santriData.nis} •{" "}
+                {MOCK_HALAQOH.find((h) => h.id === santriData.idHalaqoh)?.nama || "-"}
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Riwayat Setoran</CardTitle>
-            <CardDescription>
-              Daftar semua setoran hafalan santri
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-2 md:p-6">
-            <div className="rounded-md border overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tanggal</TableHead>
-                    <TableHead>Santri</TableHead>
-                    <TableHead>Jenis</TableHead>
-                    <TableHead>Juz</TableHead>
-                    <TableHead className="hidden md:table-cell">
-                      Materi
-                    </TableHead>
-                    <TableHead>Nilai</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredSetoran.length === 0 ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={7}
-                        className="text-center py-8 text-muted-foreground"
-                      >
-                        Belum ada data setoran
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredSetoran.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>{item.tanggal}</TableCell>
-                        <TableCell className="font-medium">
-                          {item.santri}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">
-                            {getJenisLabel(item.jenis)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className="bg-primary/10 text-primary border-primary">
-                            Juz {item.juz}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          {item.materi}
-                        </TableCell>
-                        <TableCell className="font-semibold text-primary">
-                          {item.nilai}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            className={cn(
-                              item.status === "Lancar"
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-secondary text-secondary-foreground"
-                            )}
-                          >
-                            {item.status}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+        {/* Tabs */}
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => {
+            setActiveTab(v as MainTab);
+            const subs = SUB_OPTIONS[v as MainTab];
+            setSubType(subs.length > 0 ? subs[0].value : "");
+          }}
+        >
+          <TabsList className="grid w-full grid-cols-4 h-auto">
+            <TabsTrigger
+              value="setoran_hafalan"
+              className="text-[10px] md:text-xs py-2 gap-1"
+            >
+              <BookOpen className="w-3 h-3 hidden md:block" />
+              Setoran
+            </TabsTrigger>
+            <TabsTrigger
+              value="murojaah"
+              className="text-[10px] md:text-xs py-2 gap-1"
+            >
+              <RefreshCw className="w-3 h-3 hidden md:block" />
+              Murojaah
+            </TabsTrigger>
+            <TabsTrigger
+              value="tilawah"
+              className="text-[10px] md:text-xs py-2 gap-1"
+            >
+              <BookMarked className="w-3 h-3 hidden md:block" />
+              Tilawah
+            </TabsTrigger>
+            <TabsTrigger
+              value="murojaah_rumah"
+              className="text-[10px] md:text-xs py-2 gap-1"
+            >
+              <Home className="w-3 h-3 hidden md:block" />
+              Rumah
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Sub-type selector */}
+          {subOpts.length > 0 && (
+            <div className="mt-3 flex gap-1.5 flex-wrap">
+              {subOpts.map((opt) => (
+                <Button
+                  key={opt.value}
+                  size="sm"
+                  variant={subType === opt.value ? "default" : "outline"}
+                  className="h-7 text-[10px] md:text-xs"
+                  onClick={() => setSubType(opt.value)}
+                >
+                  {opt.label}
+                </Button>
+              ))}
             </div>
-          </CardContent>
-        </Card>
+          )}
+
+          {/* Month navigation */}
+          <div className="flex items-center justify-between mt-3">
+            <Button variant="outline" size="icon" className="h-8 w-8" onClick={handlePrevMonth}>
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <span className="text-sm font-medium text-muted-foreground">
+              {monthOptions[month]} {year}
+            </span>
+            <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleNextMonth}>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Calendar */}
+          <div className="mt-3">
+            {!selectedSantri ? (
+              <Card>
+                <CardContent className="py-12 text-center text-muted-foreground text-sm">
+                  Pilih santri terlebih dahulu untuk melihat kalender monitoring
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="overflow-x-auto">
+                <div className="min-w-[500px]">
+                  <MonthlyCalendar
+                    month={month}
+                    year={year}
+                    entries={filteredEntries}
+                    onDateClick={handleDateClick}
+                    headerTitle={HEADER_TITLES[activeTab]}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Legend */}
+          {selectedSantri && (
+            <div className="flex flex-wrap gap-3 mt-3 text-[10px] md:text-xs text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-sm bg-[hsl(160,60%,45%)]/20 border border-[hsl(160,60%,45%)]/40" />
+                <span>Lancar / Lulus</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-sm bg-[hsl(45,90%,55%)]/20 border border-[hsl(45,90%,55%)]/40" />
+                <span>Kurang Lancar</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-sm bg-destructive/20 border border-destructive/40" />
+                <span>Ulangi</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span>⭐</span>
+                <span>Ujian</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span>🏠</span>
+                <span>Murojaah Rumah</span>
+              </div>
+            </div>
+          )}
+        </Tabs>
+
+        {/* Entry Modal */}
+        <EntryModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          date={modalDate}
+          santriName={santriData?.nama || ""}
+          activeTab={activeTab}
+          subType={subType as any}
+          onSave={handleSaveEntry}
+        />
       </div>
     </Layout>
   );
