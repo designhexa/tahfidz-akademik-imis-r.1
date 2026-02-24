@@ -41,6 +41,7 @@ import {
   PieChart,
   Pie,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 
 /* ================= COMPONENT ================= */
