@@ -188,7 +188,7 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-6 px-1 sm:px-0">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Dashboard Tahfidz</h1>
           <p className="text-muted-foreground mt-1">
@@ -232,30 +232,46 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="w-full overflow-x-auto">
-                <div className="min-w-[400px] h-[280px]">
-                  <ChartContainer config={barChartConfig} className="w-full h-full">
-                    <BarChart
-                      data={targetPerKelasData}
-                      margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
-                      accessibilityLayer
-                    >
-                      <CartesianGrid vertical={false} />
-                      <XAxis
-                        dataKey="name"
-                        tickLine={false}
-                        tickMargin={10}
-                        axisLine={false}
-                      />
-                      <YAxis tickLine={false} axisLine={false} />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <ChartLegend content={<ChartLegendContent />} />
-                      <Bar dataKey="memenuhi" fill="var(--color-memenuhi)" radius={[4,4,0,0]} />
-                      <Bar dataKey="belum" fill="var(--color-belum)" radius={[4,4,0,0]} />
-                    </BarChart>
-                  </ChartContainer>
-                </div>
-              </div>
+              <ChartContainer
+                config={barChartConfig}
+                className="w-full h-[260px] sm:h-[300px] md:h-[320px]"
+              >
+                <BarChart
+                  data={targetPerKelasData}
+                  margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+                  accessibilityLayer
+                >
+                  <CartesianGrid vertical={false} />
+
+                  <XAxis
+                    dataKey="name"
+                    tickLine={false}
+                    tickMargin={8}
+                    axisLine={false}
+                    fontSize={12}
+                  />
+
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    fontSize={12}
+                  />
+
+                  <ChartTooltip content={<ChartTooltipContent />} />
+
+                  <Bar
+                    dataKey="memenuhi"
+                    fill="var(--color-memenuhi)"
+                    radius={[4, 4, 0, 0]}
+                  />
+
+                  <Bar
+                    dataKey="belum"
+                    fill="var(--color-belum)"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ChartContainer>
             </CardContent>
           </Card>
 
@@ -271,31 +287,25 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="w-full overflow-x-auto">
-                <div className="min-w-[320px]">
-                  <ChartContainer
-                    config={pieChartConfig}
-                    className="w-full h-[280px] sm:h-[320px]"
-                  >
-                    <PieChart accessibilityLayer>
-                      <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+              <ChartContainer
+                config={pieChartConfig}
+                className="w-full h-[260px] sm:h-[300px] md:h-[320px]"
+              >
+                <PieChart accessibilityLayer>
+                  <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
 
-                      <Pie
-                        data={pieChartData}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={50}
-                        outerRadius={70}
-                        paddingAngle={5}
-                      />
-
-                      <ChartLegend content={<ChartLegendContent nameKey="name" />} />
-                    </PieChart>
-                  </ChartContainer>
-                </div>
-              </div>
+                  <Pie
+                    data={pieChartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={65}
+                    paddingAngle={4}
+                  />
+                </PieChart>
+              </ChartContainer>
             </CardContent>
           </Card>
         </div>
@@ -321,45 +331,47 @@ export default function Dashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nama</TableHead>
-                    <TableHead>Kelas</TableHead>
-                    <TableHead>Target</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {studentsNotMeetingTarget.length === 0 ? (
+              <div className="w-full overflow-x-auto">
+                <Table className="min-w-[500px]">
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center text-muted-foreground">
-                        Semua santri memenuhi target 🎉
-                      </TableCell>
+                      <TableHead>Nama</TableHead>
+                      <TableHead>Kelas</TableHead>
+                      <TableHead>Target</TableHead>
+                      <TableHead>Status</TableHead>
                     </TableRow>
-                  ) : (
-                    studentsNotMeetingTarget.map((student) => {
-                      const target = CLASS_TARGETS[student.kelasNumber];
-                      return (
-                        <TableRow key={student.id}>
-                          <TableCell className="font-medium">{student.nama}</TableCell>
-                          <TableCell>{student.kelas}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">
-                              {target?.targetJuz ? `Juz ${target.targetJuz}` : "Surat Pilihan"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="destructive" className="text-xs">
-                              {student.jumlahJuzHafal} Juz
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {studentsNotMeetingTarget.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center text-muted-foreground">
+                          Semua santri memenuhi target 🎉
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      studentsNotMeetingTarget.map((student) => {
+                        const target = CLASS_TARGETS[student.kelasNumber];
+                        return (
+                          <TableRow key={student.id}>
+                            <TableCell className="font-medium">{student.nama}</TableCell>
+                            <TableCell>{student.kelas}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline">
+                                {target?.targetJuz ? `Juz ${target.targetJuz}` : "Surat Pilihan"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="destructive" className="text-xs">
+                                {student.jumlahJuzHafal} Juz
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
 
