@@ -1,3 +1,5 @@
+// PASTE FULL FILE INI
+
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -41,6 +43,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+/* ================= COMPONENT ================= */
+
 export default function Dashboard() {
   const [stats, setStats] = useState({
     totalSantri: 0,
@@ -65,32 +69,28 @@ export default function Dashboard() {
         supabase.from("setoran").select("nilai_kelancaran"),
       ]);
 
-      if (santriRes.error) throw santriRes.error;
-      if (halaqohRes.error) throw halaqohRes.error;
-      if (setoranRes.error) throw setoranRes.error;
-
-      const validNilai =
+      const nilai =
         setoranRes.data?.map((s) => s.nilai_kelancaran ?? 0) ?? [];
 
-      const avgKelancaran =
-        validNilai.length > 0
-          ? validNilai.reduce((a, b) => a + b, 0) / validNilai.length
+      const avg =
+        nilai.length > 0
+          ? nilai.reduce((a, b) => a + b, 0) / nilai.length
           : 0;
 
       setStats({
         totalSantri: santriRes.count ?? 0,
         totalHalaqoh: halaqohRes.count ?? 0,
-        totalSetoran: validNilai.length,
-        avgKelancaran: Math.round(avgKelancaran),
+        totalSetoran: nilai.length,
+        avgKelancaran: Math.round(avg),
       });
     } catch (err) {
-      console.error("Fetch dashboard error:", err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  /* ================= TARGET STATS ================= */
+  /* ================= TARGET DATA ================= */
 
   const targetStats = useMemo(
     () => calculateTargetStats(mockSantriProgress),
@@ -98,55 +98,39 @@ export default function Dashboard() {
   );
 
   const targetPerKelasData = useMemo(() => {
-    const kelasGroups: Record<string, { total: number; meetsTarget: number }> =
-      {};
+    const kelasGroups: Record<string, { total: number; meets: number }> = {};
 
-    mockSantriProgress.forEach((student) => {
-      const kelas = student.kelasNumber;
-
-      if (!kelasGroups[kelas]) {
-        kelasGroups[kelas] = { total: 0, meetsTarget: 0 };
+    mockSantriProgress.forEach((s) => {
+      if (!kelasGroups[s.kelasNumber]) {
+        kelasGroups[s.kelasNumber] = { total: 0, meets: 0 };
       }
 
-      kelasGroups[kelas].total += 1;
+      kelasGroups[s.kelasNumber].total += 1;
 
-      const status = checkTargetStatus(kelas, student.juzSelesai);
-      if (status.meetsTarget) {
-        kelasGroups[kelas].meetsTarget += 1;
+      if (checkTargetStatus(s.kelasNumber, s.juzSelesai).meetsTarget) {
+        kelasGroups[s.kelasNumber].meets += 1;
       }
     });
 
-    return Object.entries(kelasGroups)
-      .sort(([a], [b]) => Number(a) - Number(b))
-      .map(([kelas, data]) => ({
-        name: `Kelas ${kelas}`,
-        memenuhi: data.meetsTarget,
-        belum: data.total - data.meetsTarget,
-      }));
+    return Object.entries(kelasGroups).map(([k, v]) => ({
+      name: `Kelas ${k}`,
+      memenuhi: v.meets,
+      belum: v.total - v.meets,
+    }));
   }, []);
 
-  const pieChartData = useMemo(
-    () => [
-      { name: "Memenuhi", value: targetStats.meetsTarget },
-      { name: "Belum", value: targetStats.notMeetsTarget },
-    ],
-    [targetStats]
-  );
+  const pieChartData = [
+    { name: "Memenuhi", value: targetStats.meetsTarget },
+    { name: "Belum", value: targetStats.notMeetsTarget },
+  ];
 
-  const studentsNotMeetingTarget = useMemo(
-    () =>
-      mockSantriProgress
-        .filter(
-          (s) => !checkTargetStatus(s.kelasNumber, s.juzSelesai).meetsTarget
-        )
-        .slice(0, 5),
-    []
-  );
+  const studentsNotMeetingTarget = mockSantriProgress
+    .filter((s) => !checkTargetStatus(s.kelasNumber, s.juzSelesai).meetsTarget)
+    .slice(0, 5);
 
-  const eligibleForTasmi = useMemo(
-    () => mockSantriProgress.filter((s) => s.eligibleForTasmi).slice(0, 5),
-    []
-  );
+  const eligibleForTasmi = mockSantriProgress
+    .filter((s) => s.eligibleForTasmi)
+    .slice(0, 5);
 
   /* ================= STAT CARDS ================= */
 
@@ -165,7 +149,6 @@ export default function Dashboard() {
       value: targetStats.meetsTarget,
       icon: CheckCircle,
       gradient: "from-green-500 to-green-600",
-      subtitle: `${targetStats.meetsTargetPercentage}%`,
     },
     {
       title: "Belum Memenuhi",
@@ -181,28 +164,25 @@ export default function Dashboard() {
     },
   ];
 
+  /* ================= RENDER ================= */
+
   return (
     <Layout>
-      <div className="space-y-6 px-1 sm:px-0">
+      <div className="space-y-6">
+
+        {/* HEADER */}
         <div>
           <h1 className="text-3xl font-bold">Dashboard Tahfidz</h1>
-          <p className="text-muted-foreground mt-1">
-            Selamat datang di sistem manajemen hafalan Al-Qur'an
+          <p className="text-muted-foreground">
+            Monitoring target hafalan santri
           </p>
         </div>
-
-        {/* Loading */}
-        {loading && (
-          <div className="text-sm text-muted-foreground">
-            Memuat data dashboard...
-          </div>
-        )}
 
         {/* STAT CARDS */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {statCards.map((card) => (
             <Card key={card.title}>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardHeader className="flex justify-between items-center pb-2">
                 <CardTitle className="text-sm text-muted-foreground">
                   {card.title}
                 </CardTitle>
@@ -214,11 +194,6 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">{card.value}</div>
-                {card.subtitle && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {card.subtitle}
-                  </p>
-                )}
               </CardContent>
             </Card>
           ))}
@@ -228,19 +203,16 @@ export default function Dashboard() {
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5" />
-                Pencapaian Target per Kelas
-              </CardTitle>
+              <CardTitle>Pencapaian per Kelas</CardTitle>
             </CardHeader>
             <CardContent className="h-[260px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={targetPerKelasData}>
                   <CartesianGrid vertical={false} />
-                  <XAxis dataKey="name" fontSize={11} />
-                  <YAxis fontSize={11} />
-                  <Bar dataKey="memenuhi" />
-                  <Bar dataKey="belum" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Bar dataKey="memenuhi" fill="#22c55e" />   // green-500
+                  <Bar dataKey="belum" fill="#ef4444" />      // red-500
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -248,34 +220,97 @@ export default function Dashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                Ringkasan Target
-              </CardTitle>
+              <CardTitle>Ringkasan Target</CardTitle>
             </CardHeader>
             <CardContent className="h-[260px]">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={pieChartData} dataKey="value" />
+                  <Pie data={pieChartData} dataKey="value">
+                    <Cell fill="#22c55e" />
+                    <Cell fill="#ef4444" />
+                  </Pie>
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
         </div>
+
+        {/* TABLES */}
+        <div className="grid gap-6 md:grid-cols-2">
+
+          {/* BELUM TARGET */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Belum Memenuhi Target</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nama</TableHead>
+                    <TableHead>Kelas</TableHead>
+                    <TableHead>Hafalan</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {studentsNotMeetingTarget.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center">
+                        Semua memenuhi target 🎉
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    studentsNotMeetingTarget.map((s) => (
+                      <TableRow key={s.id}>
+                        <TableCell>{s.nama}</TableCell>
+                        <TableCell>{s.kelas}</TableCell>
+                        <TableCell>
+                          <Badge variant="destructive">
+                            {s.jumlahJuzHafal} Juz
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          {/* TASMI */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Calon Peserta Tasmi'</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nama</TableHead>
+                    <TableHead>Kelas</TableHead>
+                    <TableHead>Hafalan</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {eligibleForTasmi.map((s) => (
+                    <TableRow key={s.id}>
+                      <TableCell>{s.nama}</TableCell>
+                      <TableCell>{s.kelas}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">
+                          {s.jumlahJuzHafal} Juz
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+        </div>
+
       </div>
     </Layout>
   );
-}
-
-/* ================= HELPER ================= */
-
-function getNextJuzForStudent(juzSelesai: number[]): number {
-  const JUZ_ORDER = [
-    30, 29, 28, 27, 26,
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-    11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-    21, 22, 23, 24, 25,
-  ];
-
-  return JUZ_ORDER.find((juz) => !juzSelesai.includes(juz)) ?? 30;
 }
