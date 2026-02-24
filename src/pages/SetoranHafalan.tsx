@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { Layout } from "@/components/Layout";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,7 @@ import {
   User,
 } from "lucide-react";
 import { MonthlyCalendar } from "@/components/setoran/MonthlyCalendar";
+import { MobileCalendar } from "@/components/setoran/MobileCalendar";
 import { EntryModal } from "@/components/setoran/EntryModal";
 import { type CalendarEntry } from "@/components/setoran/CalendarCell";
 import { MOCK_SANTRI, MOCK_HALAQOH, getSantriByHalaqoh } from "@/lib/mock-data";
@@ -176,6 +178,7 @@ const MOCK_ENTRIES: CalendarEntry[] = [
 
 const SetoranHafalan = () => {
   const now = new Date();
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState<MainTab>("setoran_hafalan");
   const [subType, setSubType] = useState("setoran_hafalan");
   const [month, setMonth] = useState(now.getMonth());
@@ -459,6 +462,14 @@ const SetoranHafalan = () => {
                   Pilih santri terlebih dahulu untuk melihat kalender monitoring
                 </CardContent>
               </Card>
+            ) : isMobile ? (
+              <MobileCalendar
+                month={month}
+                year={year}
+                entries={filteredEntries}
+                onDateClick={handleDateClick}
+                headerTitle={HEADER_TITLES[activeTab]}
+              />
             ) : (
               <div className="overflow-x-auto">
                 <div className="min-w-[500px]">
