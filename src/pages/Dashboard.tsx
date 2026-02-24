@@ -284,26 +284,24 @@ export default function Dashboard() {
             <CardContent>
               <ChartContainer
                 config={barChartConfig}
-                className="min-w-[350px] h-[260px]"
+                className="h-[260px] w-full"
               >
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={targetPerKelasData}>
-                    <CartesianGrid vertical={false} />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar
-                      dataKey="memenuhi"
-                      fill="var(--color-memenuhi)"
-                      radius={6}
-                    />
-                    <Bar
-                      dataKey="belum"
-                      fill="var(--color-belum)"
-                      radius={6}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+                <BarChart data={targetPerKelasData}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar
+                    dataKey="memenuhi"
+                    fill="var(--color-memenuhi)"
+                    radius={6}
+                  />
+                  <Bar
+                    dataKey="belum"
+                    fill="var(--color-belum)"
+                    radius={6}
+                  />
+                </BarChart>
               </ChartContainer>
             </CardContent>
           </Card>
@@ -323,28 +321,24 @@ export default function Dashboard() {
             <CardContent>
               <ChartContainer
                 config={pieChartConfig}
-                className="min-w-[280px] h-[260px]"
+                className="h-[260px] w-full"
               >
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Pie
-                      data={pieChartData}
-                      dataKey="value"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={35}
-                      outerRadius={60}
-                    >
-                      {pieChartData.map((entry) => (
-                        <Cell
-                          key={entry.name}
-                          fill={`var(--color-${entry.name})`}
-                        />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
+                <PieChart>
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Pie
+                    data={pieChartData}
+                    dataKey="value"
+                    innerRadius={35}
+                    outerRadius={60}
+                  >
+                    {pieChartData.map((entry) => (
+                      <Cell
+                        key={entry.name}
+                        fill={`var(--color-${entry.name})`}
+                      />
+                    ))}
+                  </Pie>
+                </PieChart>
               </ChartContainer>
             </CardContent>
           </Card>
