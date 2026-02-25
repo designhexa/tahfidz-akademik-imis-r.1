@@ -29,9 +29,9 @@ import { type CalendarEntry } from "@/components/setoran/CalendarCell";
 import { MOCK_SANTRI, MOCK_HALAQOH, getSantriByHalaqoh } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import TambahDrill from "@/pages/TambahDrill";
-import UjianTasmi from "@/pages/UjianTasmi";
-import TilawahAbsensi from "@/pages/TilawahAbsensi";
-import TilawahUjian from "@/pages/TilawahUjian";
+import { TasmiForm1Juz } from "@/components/tasmi/TasmiForm1Juz";
+import { TilawatiUjianForm } from "@/components/tilawah/TilawatiUjianForm";
+import { TilawahSetoranForm } from "@/components/tilawah/TilawahSetoranForm";
 
 
 type MainTab = "setoran_hafalan" | "murojaah" | "tilawah" | "murojaah_rumah";
@@ -202,6 +202,23 @@ const SetoranHafalan = () => {
   const [openTasmi, setOpenTasmi] = useState(false);
   const [openTilawah, setOpenTilawah] = useState(false);
   const [openUjianJilid, setOpenUjianJilid] = useState(false);
+
+  // Tasmi' component state
+  const dummySantri = [
+    { id: "1", nama: "Ahmad Fauzi", halaqoh: "Halaqoh Al-Fatih", kelas: "Paket A Kelas 6", juzSelesai: [30, 29] },
+    { id: "2", nama: "Muhammad Rizki", halaqoh: "Halaqoh Al-Fatih", kelas: "Paket A Kelas 6", juzSelesai: [30] },
+    { id: "3", nama: "Abdullah Hakim", halaqoh: "Halaqoh An-Nur", kelas: "KBTK A", juzSelesai: [] },
+  ];
+  const getPredikat = (nilai: number): { label: string; color: string; passed: boolean } => {
+    if (nilai >= 96) return { label: "Mumtaz Murtafi'", color: "bg-emerald-500", passed: true };
+    if (nilai >= 90) return { label: "Mumtaz", color: "bg-green-500", passed: true };
+    if (nilai >= 76) return { label: "Jayyid Jiddan", color: "bg-blue-500", passed: true };
+    if (nilai >= 70) return { label: "Jayyid", color: "bg-amber-500", passed: true };
+    return { label: "Mengulang", color: "bg-red-500", passed: false };
+  };
+
+  // Ujian kenaikan jilid state
+  const [remedialTarget, setRemedialTarget] = useState<any>(null);
 
   // Local entries storage
   const [entries, setEntries] = useState<CalendarEntry[]>(MOCK_ENTRIES);
@@ -570,25 +587,25 @@ const SetoranHafalan = () => {
           filteredSantriForForm={santriList}
         />
 
-        <UjianTasmi
-          open={openTasmi}
-          onOpenChange={setOpenTasmi}
-          tanggal={modalDate}
-          santriId={selectedSantri}
+        <TasmiForm1Juz 
+          open={openTasmi} 
+          onOpenChange={setOpenTasmi} 
+          santriList={dummySantri} 
+          getPredikat={getPredikat} 
         />
 
-        <TilawahAbsensi
-          open={openTilawah}
-          onOpenChange={setOpenTilawah}
-          initialSantriId={selectedSantri}
-          initialTanggal={modalDate}
-        />
-
-        <TilawahUjian
-          open={openUjianJilid}
+        <TilawatiUjianForm 
+          open={openUjianJilid} 
+          onSubmit={()=> {}}
           onOpenChange={setOpenUjianJilid}
-          tanggal={modalDate}
-          santriId={selectedSantri}
+          initialData={remedialTarget} 
+        />
+
+        <TilawahSetoranForm 
+          open={openTilawah} 
+          onOpenChange={setOpenTilawah}
+          onSuccess={() => {}}
+          initialSantriId={selectedSantri} // Jika ada dari redirect calendar
         />
       </div>
     </Layout>

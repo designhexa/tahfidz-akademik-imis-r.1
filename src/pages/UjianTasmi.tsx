@@ -52,6 +52,7 @@ import { getJuzName } from "@/lib/quran-data";
 import { JuzSelector } from "@/components/JuzSelector";
 import { supabase } from "@/integrations/supabase/client";
 import { TasmiCandidateCard } from "@/components/tasmi/TasmiCandidateCard";
+import { TasmiForm1Juz } from "@/components/tasmi/TasmiForm1Juz";
 import { mockSantriProgress, getNextTasmiJuz } from "@/lib/target-hafalan";
 
 const JUZ_ORDER = [30, 29, 28, 27, 26, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
@@ -154,7 +155,7 @@ const UjianTasmi = () => {
             <p className="text-muted-foreground text-sm mt-1">Ujian hafalan 1 juz atau 5 juz penuh</p>
           </div>
           <div className="flex gap-2">
-            <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+            {/* <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
                   <Plus className="w-4 h-4 mr-2" />Tasmi' 1 Juz
@@ -176,7 +177,14 @@ const UjianTasmi = () => {
                   <div className="flex justify-end gap-2"><Button variant="outline" onClick={() => setIsFormOpen(false)}>Batal</Button><Button onClick={() => { setIsFormOpen(false); resetForm1Juz(); }} className="bg-gradient-to-r from-amber-500 to-orange-500" disabled={!selectedSantri || !selectedJuz}>Simpan</Button></div>
                 </div>
               </DialogContent>
-            </Dialog>
+            </Dialog> */}
+            {/* Komponen yang sudah dipisah */}
+            <TasmiForm1Juz 
+              open={isFormOpen} 
+              onOpenChange={setIsFormOpen} 
+              santriList={dummySantri} 
+              getPredikat={getPredikat} 
+            />
 
             <Dialog open={isForm5JuzOpen} onOpenChange={setIsForm5JuzOpen}>
               <DialogTrigger asChild>
