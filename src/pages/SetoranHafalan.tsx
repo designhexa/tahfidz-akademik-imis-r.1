@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+
 import { Layout } from "@/components/Layout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,7 +28,6 @@ import { EntryModal } from "@/components/setoran/EntryModal";
 import { type CalendarEntry } from "@/components/setoran/CalendarCell";
 import { MOCK_SANTRI, MOCK_HALAQOH, getSantriByHalaqoh } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 
 type MainTab = "setoran_hafalan" | "murojaah" | "tilawah" | "murojaah_rumah";
 
@@ -38,8 +37,6 @@ const HEADER_TITLES: Record<MainTab, string> = {
   tilawah: "SETORAN TILAWAH",
   murojaah_rumah: "MUROJAAH DI RUMAH",
 };
-
-const navigate = useNavigate();
 
 // Sub-type options per tab
 const SUB_OPTIONS: Record<MainTab, { value: string; label: string }[]> = {
@@ -192,6 +189,10 @@ const SetoranHafalan = () => {
   const [selectedHalaqoh, setSelectedHalaqoh] = useState("");
   const [selectedSantri, setSelectedSantri] = useState("");
 
+  // Modal
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalDate, setModalDate] = useState<Date | null>(null);
+
   // Local entries storage
   const [entries, setEntries] = useState<CalendarEntry[]>(MOCK_ENTRIES);
 
@@ -238,42 +239,10 @@ const SetoranHafalan = () => {
   const handleDateClick = useCallback(
     (date: Date) => {
       if (!selectedSantri) return;
-
-      // ✅ Aman dari timezone bug
-      const formattedDate = format(date, "yyyy-MM-dd");
-
-      // 🔥 Tentukan base path dulu
-      let path = "";
-
-      if (activeTab === "tilawah") {
-        path = "/tilawah";
-      }
-
-      if (activeTab === "setoran_hafalan") {
-        if (subType === "drill") {
-          path = "/drill";
-        } else if (subType === "tasmi") {
-          path = "/tasmi";
-        } else {
-          path = "/setoran-hafalan-entry";
-        }
-      }
-
-      if (activeTab === "murojaah") {
-        path = "/murojaah";
-      }
-
-      if (activeTab === "murojaah_rumah") {
-        path = "/murojaah-rumah";
-      }
-
-      if (!path) return;
-
-      navigate(
-        `${path}?santri=${selectedSantri}&tanggal=${formattedDate}`
-      );
+      setModalDate(date);
+      setModalOpen(true);
     },
-    [selectedSantri, activeTab, subType, navigate]
+    [selectedSantri]
   );
 
   const handleSaveEntry = useCallback(
@@ -543,6 +512,17 @@ const SetoranHafalan = () => {
             </div>
           )}
         </Tabs>
+
+        {/* Entry Modal */}
+        <EntryModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          date={modalDate}
+          santriName={santriData?.nama || ""}
+          activeTab={activeTab}
+          subType={subType as any}
+          onSave={handleSaveEntry}
+        />
       </div>
     </Layout>
   );
