@@ -9,7 +9,8 @@
  import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
  import { Textarea } from "@/components/ui/textarea";
  import { Search, Plus, BookOpen } from "lucide-react";
- import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
  import { 
    MOCK_SETORAN_TILAWAH, 
    MOCK_SANTRI_TILAWAH, 
@@ -22,10 +23,18 @@
  import { toast } from "sonner";
 
 export default function TilawahAbsensi() {
+  const [searchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [filterHalaqoh, setFilterHalaqoh] = useState("all");
   const [filterKelas, setFilterKelas] = useState("all");
    const [dialogOpen, setDialogOpen] = useState(false);
+
+  // Auto-open form from calendar redirect
+  useEffect(() => {
+    if (searchParams.get("santri")) {
+      setDialogOpen(true);
+    }
+  }, [searchParams]);
    
    // Form state
    const [selectedSantri, setSelectedSantri] = useState("");
