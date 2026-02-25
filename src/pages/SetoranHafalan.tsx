@@ -29,10 +29,7 @@ import { type CalendarEntry } from "@/components/setoran/CalendarCell";
 import { MOCK_SANTRI, MOCK_HALAQOH, getSantriByHalaqoh } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import TambahDrill from "@/pages/TambahDrill";
-import UjianTasmi from "@/pages/UjianTasmi";
 import TilawahAbsensi from "@/pages/TilawahAbsensi";
-import TilawahUjian from "@/pages/TilawahUjian";
-
 
 type MainTab = "setoran_hafalan" | "murojaah" | "tilawah" | "murojaah_rumah";
 
