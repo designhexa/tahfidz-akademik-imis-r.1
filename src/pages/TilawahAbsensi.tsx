@@ -162,11 +162,12 @@ export default function TilawahAbsensi() {
                        <SelectValue placeholder="Pilih jilid..." />
                      </SelectTrigger>
                      <SelectContent>
-                       {TILAWATI_JILID.map((jilid) => (
-                         <SelectItem key={jilid.jilid} value={jilid.jilid.toString()}>
-                           {jilid.nama} (Hal 1-{jilid.totalHalaman})
-                         </SelectItem>
-                       ))}
+                    {TILAWATI_JILID.map((jilid) => (
+                          <SelectItem key={jilid.jilid} value={jilid.jilid.toString()}>
+                            {jilid.nama} (Hal 1-{jilid.totalHalaman})
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="quran">Al-Qur'an</SelectItem>
                      </SelectContent>
                    </Select>
                  </div>
