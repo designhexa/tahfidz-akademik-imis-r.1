@@ -576,8 +576,8 @@ const SetoranHafalan = () => {
         <TilawahAbsensi
           open={openTilawah}
           onOpenChange={setOpenTilawah}
-          tanggal={modalDate}
-          santriId={selectedSantri}
+          initialSantriId={santriId}
+          initialTanggal={tanggal}
         />
 
         <TilawahUjian
