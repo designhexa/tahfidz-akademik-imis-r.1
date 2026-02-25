@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -88,11 +89,19 @@ interface PenilaianHalaman { halaman: number; pancingan: number; catatan: string
 interface PenilaianJuz { juz: number; halaman: PenilaianHalaman[]; catatanJuz: string; }
 
 const UjianTasmi = () => {
+  const [searchParams] = useSearchParams();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isForm5JuzOpen, setIsForm5JuzOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedUjian, setSelectedUjian] = useState<typeof dummyHasilUjian[0] | null>(null);
   const [expandedRules, setExpandedRules] = useState(false);
+
+  // Auto-open form from calendar redirect
+  useEffect(() => {
+    if (searchParams.get("santri")) {
+      setIsFormOpen(true);
+    }
+  }, [searchParams]);
   
   const [selectedSantri, setSelectedSantri] = useState("");
   const [selectedJuz, setSelectedJuz] = useState("");

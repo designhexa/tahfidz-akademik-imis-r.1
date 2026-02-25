@@ -9,7 +9,8 @@
  import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
  import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
  import { Search, Plus, Award, Clock, FileText, RefreshCw } from "lucide-react";
- import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { 
   MOCK_SANTRI_TILAWAH, 
   TILAWATI_JILID,
@@ -24,11 +25,19 @@ import { MOCK_KELAS } from "@/lib/mock-data";
 import { toast } from "sonner";
 
 export default function TilawahUjian() {
+  const [searchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [filterHalaqoh, setFilterHalaqoh] = useState("all");
   const [filterKelas, setFilterKelas] = useState("all");
    const [dialogOpen, setDialogOpen] = useState(false);
    const [remedialDialogOpen, setRemedialDialogOpen] = useState(false);
+
+  // Auto-open form from calendar redirect
+  useEffect(() => {
+    if (searchParams.get("santri")) {
+      setDialogOpen(true);
+    }
+  }, [searchParams]);
    const [remedialTarget, setRemedialTarget] = useState<any>(null);
    
    // Form state
