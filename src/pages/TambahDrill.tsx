@@ -1,9 +1,11 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import {
+  Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -53,8 +55,8 @@ interface ManualPage {
 /* ================= COMPONENT ================= */
 
 const TambahDrill: FC<any> = ({
-  halaqohList,
-  filteredSantriForForm,
+  halaqohList = [],
+  filteredSantriForForm = [],
   CalendarComponent,
 }) => {
   /* ===== BASIC ===== */
@@ -141,7 +143,9 @@ const TambahDrill: FC<any> = ({
 
   /* ================= RENDER ================= */
 
-  return (
+  const isStandalone = !halaqohList.length && !filteredSantriForForm.length;
+
+  const content = (
     <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>Tambah Drill Hafalan</DialogTitle>
@@ -349,6 +353,20 @@ const TambahDrill: FC<any> = ({
       </div>
     </DialogContent>
   );
+
+  if (isStandalone) {
+    return (
+      <Layout>
+        <div className="max-w-md mx-auto py-6">
+          <Dialog open>
+            {content}
+          </Dialog>
+        </div>
+      </Layout>
+    );
+  }
+
+  return content;
 };
 
 export default TambahDrill;
