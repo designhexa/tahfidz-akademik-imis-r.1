@@ -562,6 +562,8 @@ const SetoranHafalan = () => {
           onOpenChange={setOpenDrill}
           tanggal={modalDate}
           santriId={selectedSantri}
+          halaqohList={MOCK_HALAQOH}
+          filteredSantriForForm={santriList}
         />
 
         <UjianTasmi
