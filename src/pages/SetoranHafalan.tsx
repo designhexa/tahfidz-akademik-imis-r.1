@@ -193,6 +193,8 @@ const SetoranHafalan = () => {
   // Filters
   const [selectedHalaqoh, setSelectedHalaqoh] = useState("");
   const [selectedSantri, setSelectedSantri] = useState("");
+  const [santriId, setSantriId] = useState<string | null>(null);
+  const [tanggal, setTanggal] = useState<Date>(new Date());
 
   // Modal
   const [modalDate, setModalDate] = useState<Date | null>(null);
