@@ -28,6 +28,11 @@ import { EntryModal } from "@/components/setoran/EntryModal";
 import { type CalendarEntry } from "@/components/setoran/CalendarCell";
 import { MOCK_SANTRI, MOCK_HALAQOH, getSantriByHalaqoh } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import TambahDrill from "@/pages/TambahDrill";
+import UjianTasmi from "@/pages/UjianTasmi";
+import TilawahAbsensi from "@/pages/TilawahAbsensi";
+import TilawahUjian from "@/pages/TilawahUjian";
+
 
 type MainTab = "setoran_hafalan" | "murojaah" | "tilawah" | "murojaah_rumah";
 
@@ -190,8 +195,13 @@ const SetoranHafalan = () => {
   const [selectedSantri, setSelectedSantri] = useState("");
 
   // Modal
-  const [modalOpen, setModalOpen] = useState(false);
   const [modalDate, setModalDate] = useState<Date | null>(null);
+
+  const [openEntry, setOpenEntry] = useState(false);
+  const [openDrill, setOpenDrill] = useState(false);
+  const [openTasmi, setOpenTasmi] = useState(false);
+  const [openTilawah, setOpenTilawah] = useState(false);
+  const [openUjianJilid, setOpenUjianJilid] = useState(false);
 
   // Local entries storage
   const [entries, setEntries] = useState<CalendarEntry[]>(MOCK_ENTRIES);
@@ -209,7 +219,7 @@ const SetoranHafalan = () => {
     const jenisMap: Record<MainTab, string[]> = {
       setoran_hafalan: ["setoran_hafalan", "drill", "tasmi"],
       murojaah: ["murojaah"],
-      tilawah: ["tilawah", "ujian_jilid"],
+      tilawah: ["tilawah_harian", "ujian_jilid"],
       murojaah_rumah: ["murojaah_rumah"],
     };
     const allowedJenis = jenisMap[activeTab];
@@ -239,10 +249,33 @@ const SetoranHafalan = () => {
   const handleDateClick = useCallback(
     (date: Date) => {
       if (!selectedSantri) return;
+
       setModalDate(date);
-      setModalOpen(true);
+
+      if (activeTab === "setoran_hafalan") {
+        if (subType === "drill") {
+          setOpenDrill(true);
+        } else if (subType === "tasmi") {
+          setOpenTasmi(true);
+        } else {
+          setOpenEntry(true);
+        }
+        return;
+      }
+
+      if (activeTab === "tilawah") {
+        if (subType === "tilawah_harian") {
+          setOpenTilawah(true);
+        } else if (subType === "ujian_jilid") {
+          setOpenUjianJilid(true);
+        }
+        return;
+      }
+
+      // Tab lainnya tetap pakai entry modal
+      setOpenEntry(true);
     },
-    [selectedSantri]
+    [selectedSantri, activeTab, subType]
   );
 
   const handleSaveEntry = useCallback(
@@ -515,13 +548,41 @@ const SetoranHafalan = () => {
 
         {/* Entry Modal */}
         <EntryModal
-          open={modalOpen}
-          onOpenChange={setModalOpen}
+          open={openEntry}
+          onOpenChange={setOpenEntry}
           date={modalDate}
           santriName={santriData?.nama || ""}
           activeTab={activeTab}
           subType={subType as any}
           onSave={handleSaveEntry}
+        />
+
+        <TambahDrill
+          open={openDrill}
+          onOpenChange={setOpenDrill}
+          tanggal={modalDate}
+          santriId={selectedSantri}
+        />
+
+        <UjianTasmi
+          open={openTasmi}
+          onOpenChange={setOpenTasmi}
+          tanggal={modalDate}
+          santriId={selectedSantri}
+        />
+
+        <TilawahAbsensi
+          open={openTilawah}
+          onOpenChange={setOpenTilawah}
+          tanggal={modalDate}
+          santriId={selectedSantri}
+        />
+
+        <TilawahUjian
+          open={openUjianJilid}
+          onOpenChange={setOpenUjianJilid}
+          tanggal={modalDate}
+          santriId={selectedSantri}
         />
       </div>
     </Layout>
