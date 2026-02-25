@@ -30,6 +30,7 @@ import { MOCK_SANTRI, MOCK_HALAQOH, getSantriByHalaqoh } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import TambahDrill from "@/pages/TambahDrill";
 import TilawahAbsensi from "@/pages/TilawahAbsensi";
+import TilawahUjian from "@/pages/TilawahUjian";
 
 type MainTab = "setoran_hafalan" | "murojaah" | "tilawah" | "murojaah_rumah";
 
@@ -214,20 +215,45 @@ const SetoranHafalan = () => {
   const filteredEntries = useMemo(() => {
     if (!selectedSantri) return [];
 
-    // hanya jenis yang termasuk aktivitas harian
-    const allowedDailyJenis = [
-      "setoran_hafalan",
-      "murojaah",
-      "tilawah_harian",
-      "murojaah_rumah",
-    ];
+    return entries.filter((e) => {
+      if (e.santriId !== selectedSantri) return false;
 
-    return entries.filter(
-      (e) =>
-        e.santriId === selectedSantri &&
-        allowedDailyJenis.includes(e.jenis)
-    );
-  }, [entries, selectedSantri]);
+      // SETORAN HAFALAN TAB
+      if (activeTab === "setoran_hafalan") {
+        if (subType === "setoran_hafalan") {
+          return e.jenis === "setoran_hafalan";
+        }
+        if (subType === "drill") {
+          return e.jenis === "drill";
+        }
+        if (subType === "tasmi") {
+          return e.jenis === "tasmi";
+        }
+      }
+
+      // MUROJAAH SEKOLAH
+      if (activeTab === "murojaah") {
+        return e.jenis === "murojaah";
+      }
+
+      // TILAWAH
+      if (activeTab === "tilawah") {
+        if (subType === "tilawah_harian") {
+          return e.jenis === "tilawah_harian";
+        }
+        if (subType === "ujian_jilid") {
+          return e.jenis === "ujian_jilid";
+        }
+      }
+
+      // MUROJAAH RUMAH
+      if (activeTab === "murojaah_rumah") {
+        return e.jenis === "murojaah_rumah";
+      }
+
+      return false;
+    });
+  }, [entries, selectedSantri, activeTab, subType]);
 
   const handlePrevMonth = () => {
     if (month === 0) {
