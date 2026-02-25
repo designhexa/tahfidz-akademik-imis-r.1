@@ -55,10 +55,23 @@ interface ManualPage {
 
 /* ================= COMPONENT ================= */
 
-const TambahDrill: FC<any> = ({
+interface TambahDrillProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  tanggal?: Date | null;
+  santriId?: string;
+  halaqohList?: any[];
+  filteredSantriForForm?: any[];
+}
+
+const TambahDrill: FC<TambahDrillProps> = ({
+  open,
+  onOpenChange,
+  tanggal: initialTanggal,
+  santriId: initialSantriId,
   halaqohList = [],
   filteredSantriForForm = [],
-  
+
 }) => {
   /* ===== BASIC ===== */
   const [halaqohId, setHalaqohId] = useState("");
@@ -137,6 +150,18 @@ const TambahDrill: FC<any> = ({
       setPages([]);
     }
   }, [selectedDrill]);
+
+  useEffect(() => {
+    if (initialTanggal) {
+      setTanggal(initialTanggal);
+    }
+  }, [initialTanggal]);
+
+  useEffect(() => {
+    if (initialSantriId) {
+      setSantriId(initialSantriId);
+    }
+  }, [initialSantriId]);
 
 
   /* ===== DRILL TYPE ===== */
@@ -355,17 +380,25 @@ const TambahDrill: FC<any> = ({
     </DialogContent>
   );
 
-  if (isStandalone) {
+  if (typeof open === "boolean") {
+    // MODE MODAL (controlled by parent)
     return (
-      <Layout>
-        <div className="max-w-md mx-auto py-6">
-          <Dialog open>
-            {content}
-          </Dialog>
-        </div>
-      </Layout>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        {content}
+      </Dialog>
     );
   }
+
+  // MODE STANDALONE PAGE
+  return (
+    <Layout>
+      <div className="max-w-md mx-auto py-6">
+        <Dialog open>
+          {content}
+        </Dialog>
+      </div>
+    </Layout>
+  );
 
   return content;
 };
