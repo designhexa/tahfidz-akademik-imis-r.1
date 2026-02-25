@@ -43,6 +43,10 @@ type MenuItem = {
   children?: MenuItem[];
 };
 
+const dashboardItems: MenuItem[] = [
+  { title: "Dashboard", url: "/", icon: BookOpen },
+];
+
 const setoranItems: MenuItem[] = [
   { title: "Setoran Harian", url: "/setoran", icon: BookOpen },
   { title: "Drill Hafalan", url: "/drill", icon: Target },
@@ -208,6 +212,22 @@ export function AppSidebar() {
             )}
           </div>
         </div>
+
+        {/* Dashboard */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive("/")}>
+                  <NavLink to="/">
+                    <BookOpen className="w-4 h-4" />
+                    <span>Dashboard</span>
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
         {/* Setoran */}
         <SidebarGroup>
