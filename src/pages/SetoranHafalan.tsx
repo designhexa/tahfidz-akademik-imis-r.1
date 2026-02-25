@@ -242,9 +242,9 @@ const SetoranHafalan = () => {
     (date: Date) => {
       if (!selectedSantri) return;
 
-      // Redirect to dedicated pages for specific sub-types
+      // Redirect to dedicated form pages for specific sub-types
       const redirectMap: Record<string, string> = {
-        drill: "/drill",
+        drill: "/tambah-drill",
         tasmi: "/ujian-tasmi",
         tilawah_harian: "/tilawah/absensi",
         ujian_jilid: "/tilawah/ujian",
@@ -252,7 +252,8 @@ const SetoranHafalan = () => {
 
       const redirectPath = redirectMap[subType];
       if (redirectPath) {
-        navigate(redirectPath);
+        const dateStr = date.toISOString().split("T")[0];
+        navigate(`${redirectPath}?santri=${selectedSantri}&tanggal=${dateStr}`);
         return;
       }
 
