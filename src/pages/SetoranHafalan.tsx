@@ -216,17 +216,21 @@ const SetoranHafalan = () => {
   // Filter entries for current tab and santri
   const filteredEntries = useMemo(() => {
     if (!selectedSantri) return [];
-    const jenisMap: Record<MainTab, string[]> = {
-      setoran_hafalan: ["setoran_hafalan", "drill", "tasmi"],
-      murojaah: ["murojaah"],
-      tilawah: ["tilawah_harian", "ujian_jilid"],
-      murojaah_rumah: ["murojaah_rumah"],
-    };
-    const allowedJenis = jenisMap[activeTab];
+
+    // hanya jenis yang termasuk aktivitas harian
+    const allowedDailyJenis = [
+      "setoran_hafalan",
+      "murojaah",
+      "tilawah_harian",
+      "murojaah_rumah",
+    ];
+
     return entries.filter(
-      (e) => e.santriId === selectedSantri && allowedJenis.includes(e.jenis)
+      (e) =>
+        e.santriId === selectedSantri &&
+        allowedDailyJenis.includes(e.jenis)
     );
-  }, [entries, selectedSantri, activeTab]);
+  }, [entries, selectedSantri]);
 
   const handlePrevMonth = () => {
     if (month === 0) {
