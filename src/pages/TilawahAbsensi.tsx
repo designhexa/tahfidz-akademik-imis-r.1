@@ -39,25 +39,13 @@ export default function TilawahAbsensi({
   const [filterHalaqoh, setFilterHalaqoh] = useState("all");
   const [filterKelas, setFilterKelas] = useState("all");
 
-  // Auto-open form from calendar redirect
   useEffect(() => {
-    if (open && santriId) {
-      setSelectedSantri(santriId);
+    if (open) {
+      if (initialSantriId) {
+        setSelectedSantri(initialSantriId);
+      }
     }
-  }, [open, santriId]);
-
-  useEffect(() => {
-    if (open && tanggal) {
-      // misalnya kalau kamu punya state tanggal
-      setTanggal(tanggal);
-    }
-  }, [open, tanggal]);
-
-  useEffect(() => {
-    if (initialSantriId && initialTanggal) {
-      setDialogOpen(true);
-    }
-  }, [initialSantriId, initialTanggal]);
+  }, [open, initialSantriId]);
    
    // Form state
    const [selectedSantri, setSelectedSantri] = useState("");
