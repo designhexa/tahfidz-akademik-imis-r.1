@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { JuzSelector } from "@/components/JuzSelector";
+import { Calendar } from "@/components/ui/calendar";
 
 import {
   getDrillsForJuz,
@@ -57,7 +58,7 @@ interface ManualPage {
 const TambahDrill: FC<any> = ({
   halaqohList = [],
   filteredSantriForForm = [],
-  CalendarComponent,
+  
 }) => {
   /* ===== BASIC ===== */
   const [halaqohId, setHalaqohId] = useState("");
@@ -199,7 +200,7 @@ const TambahDrill: FC<any> = ({
               </Button>
             </PopoverTrigger>
             <PopoverContent>
-              <CalendarComponent
+              <Calendar
                 mode="single"
                 selected={tanggal}
                 onSelect={setTanggal}
