@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+
 import { Layout } from "@/components/Layout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Card, CardContent } from "@/components/ui/card";
@@ -236,32 +236,13 @@ const SetoranHafalan = () => {
     }
   };
 
-  const navigate = useNavigate();
-
   const handleDateClick = useCallback(
     (date: Date) => {
       if (!selectedSantri) return;
-
-      // Redirect to dedicated form pages for specific sub-types
-      const redirectMap: Record<string, string> = {
-        drill: "/tambah-drill",
-        tasmi: "/ujian-tasmi",
-        tilawah_harian: "/tilawah/absensi",
-        ujian_jilid: "/tilawah/ujian",
-      };
-
-      const redirectPath = redirectMap[subType];
-      if (redirectPath) {
-        const dateStr = date.toISOString().split("T")[0];
-        navigate(`${redirectPath}?santri=${selectedSantri}&tanggal=${dateStr}`);
-        return;
-      }
-
-      // Default: open inline modal for setoran_hafalan, murojaah, murojaah_rumah
       setModalDate(date);
       setModalOpen(true);
     },
-    [selectedSantri, subType, navigate]
+    [selectedSantri]
   );
 
   const handleSaveEntry = useCallback(
