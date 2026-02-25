@@ -28,6 +28,7 @@ import { EntryModal } from "@/components/setoran/EntryModal";
 import { type CalendarEntry } from "@/components/setoran/CalendarCell";
 import { MOCK_SANTRI, MOCK_HALAQOH, getSantriByHalaqoh } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 type MainTab = "setoran_hafalan" | "murojaah" | "tilawah" | "murojaah_rumah";
 
@@ -238,33 +239,39 @@ const SetoranHafalan = () => {
     (date: Date) => {
       if (!selectedSantri) return;
 
-      const formattedDate = date.toISOString().split("T")[0];
+      // ✅ Aman dari timezone bug
+      const formattedDate = format(date, "yyyy-MM-dd");
+
+      // 🔥 Tentukan base path dulu
+      let path = "";
+
+      if (activeTab === "tilawah") {
+        path = "/tilawah";
+      }
 
       if (activeTab === "setoran_hafalan") {
         if (subType === "drill") {
-          navigate(`/drill?santri=${selectedSantri}&date=${formattedDate}`);
+          path = "/drill";
         } else if (subType === "tasmi") {
-          navigate(`/tasmi?santri=${selectedSantri}&date=${formattedDate}`);
+          path = "/tasmi";
         } else {
-          navigate(`/setoran-hafalan?santri=${selectedSantri}&date=${formattedDate}`);
-        }
-      }
-
-      if (activeTab === "tilawah") {
-        if (subType === "ujian_jilid") {
-          navigate(`/tilawah?type=ujian_jilid&santri=${selectedSantri}&date=${formattedDate}`);
-        } else {
-          navigate(`/tilawah?santri=${selectedSantri}&date=${formattedDate}`);
+          path = "/setoran-hafalan-entry";
         }
       }
 
       if (activeTab === "murojaah") {
-        navigate(`/murojaah?santri=${selectedSantri}&date=${formattedDate}`);
+        path = "/murojaah";
       }
 
       if (activeTab === "murojaah_rumah") {
-        navigate(`/murojaah-rumah?santri=${selectedSantri}&date=${formattedDate}`);
+        path = "/murojaah-rumah";
       }
+
+      if (!path) return;
+
+      navigate(
+        `${path}?santri=${selectedSantri}&tanggal=${formattedDate}`
+      );
     },
     [selectedSantri, activeTab, subType, navigate]
   );
