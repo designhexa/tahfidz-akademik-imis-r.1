@@ -33,7 +33,7 @@ import AkademikRapor from "./pages/AkademikRapor";
 import AkademikRaporDiniyah from "./pages/AkademikRaporDiniyah";
 import TilawahUjianSemester from "./pages/TilawahUjianSemester";
 import DetailSantri from "./pages/DetailSantri";
-import TambahDrill from "./pages/TambahDrill";
+// import TambahDrill from "./pages/TambahDrill";
 import TambahSetoran from "./pages/TambahSetoran";
 // Profil & Pengaturan
 import Profil from "./pages/Profil";
@@ -54,7 +54,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/setoran" element={<SetoranHafalan />} />
             <Route path="/drill" element={<DrillHafalan />} />
-            <Route path="/tambah-drill" element={<TambahDrill />} />
+            {/* <Route path="/tambah-drill" element={<TambahDrill />} /> */}
             <Route path="/laporan" element={<LaporanHafalan />} />
             <Route path="/ujian-tasmi" element={<UjianTasmi />} />
             <Route path="/ujian-tahfidz" element={<UjianTahfidz />} />

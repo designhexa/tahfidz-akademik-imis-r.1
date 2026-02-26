@@ -155,7 +155,7 @@ const UjianTasmi = () => {
             <p className="text-muted-foreground text-sm mt-1">Ujian hafalan 1 juz atau 5 juz penuh</p>
           </div>
           <div className="flex gap-2">
-            {/* <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+            <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
                   <Plus className="w-4 h-4 mr-2" />Tasmi' 1 Juz
@@ -177,14 +177,14 @@ const UjianTasmi = () => {
                   <div className="flex justify-end gap-2"><Button variant="outline" onClick={() => setIsFormOpen(false)}>Batal</Button><Button onClick={() => { setIsFormOpen(false); resetForm1Juz(); }} className="bg-gradient-to-r from-amber-500 to-orange-500" disabled={!selectedSantri || !selectedJuz}>Simpan</Button></div>
                 </div>
               </DialogContent>
-            </Dialog> */}
+            </Dialog>
             {/* Komponen yang sudah dipisah */}
-            <TasmiForm1Juz 
+            {/* <TasmiForm1Juz 
               open={isFormOpen} 
               onOpenChange={setIsFormOpen} 
               santriList={dummySantri} 
               getPredikat={getPredikat} 
-            />
+            /> */}
 
             <Dialog open={isForm5JuzOpen} onOpenChange={setIsForm5JuzOpen}>
               <DialogTrigger asChild>

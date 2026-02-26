@@ -28,7 +28,7 @@ import { EntryModal } from "@/components/setoran/EntryModal";
 import { type CalendarEntry } from "@/components/setoran/CalendarCell";
 import { MOCK_SANTRI, MOCK_HALAQOH, getSantriByHalaqoh } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
-import TambahDrill from "@/pages/TambahDrill";
+import { AddDrillModal } from "@/components/setoran/AddDrillModal";
 import { TasmiForm1Juz } from "@/components/tasmi/TasmiForm1Juz";
 import { TilawatiUjianForm } from "@/components/tilawah/TilawatiUjianForm";
 import { TilawahSetoranForm } from "@/components/tilawah/TilawahSetoranForm";
@@ -578,25 +578,28 @@ const SetoranHafalan = () => {
           onSave={handleSaveEntry}
         />
 
-        <TambahDrill
+        <AddDrillModal
           open={openDrill}
           onOpenChange={setOpenDrill}
-          tanggal={modalDate}
-          santriId={selectedSantri}
-          halaqohList={MOCK_HALAQOH}
-          filteredSantriForForm={santriList}
+          date={modalDate}
+          santriName={santriData?.nama || ""}
+          onSuccess={() => {}}
         />
 
         <TasmiForm1Juz 
           open={openTasmi} 
           onOpenChange={setOpenTasmi} 
           santriList={dummySantri} 
+          date={modalDate}
+          santriName={santriData?.nama || ""}
           getPredikat={getPredikat} 
         />
 
         <TilawatiUjianForm 
           open={openUjianJilid} 
           onSubmit={()=> {}}
+          date={modalDate}
+          santriName={santriData?.nama || ""}
           onOpenChange={setOpenUjianJilid}
           initialData={remedialTarget} 
         />
@@ -604,6 +607,8 @@ const SetoranHafalan = () => {
         <TilawahSetoranForm 
           open={openTilawah} 
           onOpenChange={setOpenTilawah}
+          date={modalDate}
+          santriName={santriData?.nama || ""}
           onSuccess={() => {}}
           initialSantriId={selectedSantri} // Jika ada dari redirect calendar
         />

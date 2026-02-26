@@ -9,6 +9,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -27,19 +28,25 @@ import {
   getNilaiMinimumLulusByJilid,
   getAspekPenilaianByJilid 
 } from "@/lib/tilawah-data";
+import { format } from "date-fns";
+import { id as localeId } from "date-fns/locale";
 
 interface TilawatiUjianFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: any) => void;
   initialData?: any; // Jika ada, otomatis masuk mode Remedial
+  date: Date | null;
+  santriName: string;
 }
 
 export const TilawatiUjianForm = ({ 
   open, 
   onOpenChange, 
   onSubmit, 
-  initialData 
+  initialData, 
+  date, 
+  santriName
 }: TilawatiUjianFormProps) => {
   const isRemedial = !!initialData;
 
@@ -119,6 +126,8 @@ export const TilawatiUjianForm = ({
     onOpenChange(false);
   };
 
+  if (!date) return null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -127,6 +136,10 @@ export const TilawatiUjianForm = ({
             {isRemedial ? <RefreshCw className="w-6 h-6 text-orange-500" /> : <Award className="w-6 h-6 text-primary" />}
             {isRemedial ? `Remedial Ujian: ${initialData.nama}` : "Form Ujian Kenaikan Jilid"}
           </DialogTitle>
+          <DialogDescription>
+            {santriName} •{" "}
+            {format(date, "EEEE, d MMMM yyyy", { locale: localeId })}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 pt-2">
@@ -144,8 +157,8 @@ export const TilawatiUjianForm = ({
           </div>
 
           {/* Pemilihan Santri & Jilid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2 hidden">
               <Label>Santri</Label>
               <Select value={selectedSantri} onValueChange={setSelectedSantri} disabled={isRemedial}>
                 <SelectTrigger><SelectValue placeholder="Pilih santri..." /></SelectTrigger>

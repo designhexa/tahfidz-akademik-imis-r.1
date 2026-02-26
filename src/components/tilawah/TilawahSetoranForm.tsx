@@ -10,6 +10,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -25,19 +26,25 @@ import {
   HALAMAN_PER_JILID,
   getAspekPenilaianByJilid 
 } from "@/lib/tilawah-data";
+import { format } from "date-fns";
+import { id as localeId } from "date-fns/locale";
 
 interface TilawahSetoranFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: (newData: any) => void;
   initialSantriId?: string;
+  date: Date | null;
+  santriName: string;
 }
 
 export const TilawahSetoranForm = ({ 
   open, 
   onOpenChange, 
   onSuccess,
-  initialSantriId 
+  initialSantriId,
+  date, 
+  santriName
 }: TilawahSetoranFormProps) => {
   
   // --- Form States ---
@@ -109,6 +116,8 @@ export const TilawahSetoranForm = ({
     onOpenChange(false);
   };
 
+  if (!date) return null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -117,11 +126,15 @@ export const TilawahSetoranForm = ({
             <BookOpen className="w-5 h-5 text-primary" />
             Tambah Setoran Tilawah
           </DialogTitle>
+          <DialogDescription>
+            {santriName} •{" "}
+            {format(date, "EEEE, d MMMM yyyy", { locale: localeId })}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 pt-4">
           {/* Baris 1: Santri */}
-          <div className="space-y-2">
+          <div className="space-y-2 hidden">
             <Label>Pilih Santri</Label>
             <Select value={selectedSantri} onValueChange={setSelectedSantri} disabled={!!initialSantriId}>
               <SelectTrigger>

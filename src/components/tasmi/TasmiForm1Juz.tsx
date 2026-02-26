@@ -9,6 +9,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -19,15 +20,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { JuzSelector } from "@/components/JuzSelector";
+import { format } from "date-fns";
+import { id as localeId } from "date-fns/locale";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  date: Date | null;
+  santriName: string;
   santriList: any[];
   getPredikat: (nilai: number) => { label: string; color: string; passed: boolean };
 }
 
-export const TasmiForm1Juz = ({ open, onOpenChange, santriList, getPredikat }: Props) => {
+export const TasmiForm1Juz = ({ open, onOpenChange, santriList, getPredikat, date, santriName }: Props) => {
   const [selectedSantri, setSelectedSantri] = useState("");
   const [selectedJuz, setSelectedJuz] = useState("");
   const [catatanUmum, setCatatanUmum] = useState("");
@@ -47,17 +52,21 @@ export const TasmiForm1Juz = ({ open, onOpenChange, santriList, getPredikat }: P
     setPenilaianHalaman(Array.from({ length: 20 }, (_, i) => ({ halaman: i + 1, pancingan: 0, catatan: "" })));
   };
 
+  if (!date) return null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Award className="w-5 h-5 text-amber-500" /> Form Ujian Tasmi' (1 Juz)
-          </DialogTitle>
+          <DialogTitle className="text-base">Form Ujian Tasmi' (1 Juz)</DialogTitle>
+          <DialogDescription>
+            {santriName} •{" "}
+            {format(date, "EEEE, d MMMM yyyy", { locale: localeId })}
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-6 py-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-2 hidden">
               <Label>Santri</Label>
               <Select value={selectedSantri} onValueChange={setSelectedSantri}>
                 <SelectTrigger><SelectValue placeholder="Pilih santri" /></SelectTrigger>
