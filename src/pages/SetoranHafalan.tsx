@@ -454,7 +454,7 @@ const SetoranHafalan = () => {
               className="text-[10px] md:text-xs py-2 gap-1"
             >
               <BookOpen className="w-3 h-3 hidden md:block" />
-              Setoran
+              Hafalan
             </TabsTrigger>
             <TabsTrigger
               value="murojaah"
