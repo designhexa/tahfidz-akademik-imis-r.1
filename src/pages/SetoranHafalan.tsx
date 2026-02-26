@@ -453,8 +453,8 @@ const SetoranHafalan = () => {
               value="setoran_hafalan"
               className="text-[10px] md:text-xs py-2 gap-1"
             >
-              <BookOpen className="w-3 h-3 hidden md:block" />
-              Setoran
+              <BookMarked className="w-3 h-3 hidden md:block" />
+              Hafalan
             </TabsTrigger>
             <TabsTrigger
               value="murojaah"
@@ -467,7 +467,7 @@ const SetoranHafalan = () => {
               value="tilawah"
               className="text-[10px] md:text-xs py-2 gap-1"
             >
-              <BookMarked className="w-3 h-3 hidden md:block" />
+              <BookOpen className="w-3 h-3 hidden md:block" />
               Tilawah
             </TabsTrigger>
             <TabsTrigger

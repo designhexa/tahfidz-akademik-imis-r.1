@@ -229,19 +229,12 @@ export default function Dashboard() {
                 Proporsi santri memenuhi target
               </CardDescription>
             </CardHeader>
-            <Card>
-              <CardHeader>
-                <CardTitle>Ringkasan Target Keseluruhan</CardTitle>
-                <CardDescription>
-                  Proporsi santri memenuhi target
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Tooltip />
-                    <Legend />
-                    <Pie
+            <CardContent className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Tooltip />
+                  <Legend />
+                  <Pie
                       data={pieChartData}
                       dataKey="value"
                       nameKey="name"
@@ -249,11 +242,10 @@ export default function Dashboard() {
                     >
                       <Cell fill="#22c55e" />
                       <Cell fill="#ef4444" />
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+             </CardContent>
           </Card>
         </div>
 
