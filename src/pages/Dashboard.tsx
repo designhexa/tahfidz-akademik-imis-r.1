@@ -230,12 +230,6 @@ export default function Dashboard() {
               </CardDescription>
             </CardHeader>
             <Card>
-              <CardHeader>
-                <CardTitle>Ringkasan Target Keseluruhan</CardTitle>
-                <CardDescription>
-                  Proporsi santri memenuhi target
-                </CardDescription>
-              </CardHeader>
               <CardContent className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
